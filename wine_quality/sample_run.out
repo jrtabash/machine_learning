@@ -1,0 +1,13 @@
+test(whichData='red', pcaN=-1, bestEstimator=True, goodBadLabels=True, verbose=True)
+Test WineQuality: data=red bestEstimator=True goodBadLabels=True
+***** Pipeline:
+Pipeline(memory=None,
+     steps=[('scale', MinMaxScaler(copy=True, feature_range=(0, 1)))])
+***** Model:
+SVC(C=1.1, cache_size=200, class_weight=None, coef0=0.0,
+  decision_function_shape='ovr', degree=3, gamma=49.0, kernel='rbf',
+  max_iter=-1, probability=False, random_state=None, shrinking=True,
+  tol=0.001, verbose=False)
+***** Running test
+Validation Score: 0.9020
+      Test Score: 0.9129
