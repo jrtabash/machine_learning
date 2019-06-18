@@ -1,3 +1,4 @@
+# Using Decision Tree Classification
 test(preprocess=False, seed=None, verbose=True)
 Test Pulsar Data: preprocess=False
 ***** Model:
@@ -9,3 +10,30 @@ DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
             splitter='best')
 Validation Score: 0.9643
       Test Score: 0.9712
+
+# Using Stochastic Gradient Descent
+test(whichClass="sgd", sgdPenalty="l2", verbose=True)
+Test Pulsar Data: whichClass=sgd preprocess=False
+***** Model:
+SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
+       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
+       learning_rate='optimal', loss='hinge', max_iter=1000, n_iter=None,
+       n_jobs=1, penalty='l2', power_t=0.5, random_state=None,
+       shuffle=True, tol=0.0003, verbose=0, warm_start=False)
+Validation Score: 0.9705
+      Test Score: 0.9751
+
+# Using Stochastic Gradient Descent with data normalization
+test(whichClass="sgd", sgdPenalty="l2", sgdLoss="hinge", verbose=True, preprocess=True)
+Test Pulsar Data: whichClass=sgd preprocess=True
+***** Pipeline:
+Pipeline(memory=None,
+     steps=[('scale', MinMaxScaler(copy=True, feature_range=(0, 1)))])
+***** Model:
+SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
+       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
+       learning_rate='optimal', loss='hinge', max_iter=1000, n_iter=None,
+       n_jobs=1, penalty='l2', power_t=0.5, random_state=None,
+       shuffle=True, tol=0.003, verbose=0, warm_start=False)
+Validation Score: 0.9742
+      Test Score: 0.9802

@@ -15,5 +15,5 @@ Applying supervised classification to perdict a pulsar star.
 
 Using a pulsar data set, where each pulsar candidate (row) is described using 8 attributes and a classification; 0 = Not Pulsar and 1 = Pulsar.
 
-The pulsar star data is available from kaggle.com at the following link:
-  https://www.kaggle.com/pavanraj159/predicting-a-pulsar-star
+The pulsar star data is available from the UC Irvine Machine Learning Repository at the following link:
+  https://archive.ics.uci.edu/ml/datasets/HTRU2

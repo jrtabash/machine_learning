@@ -5,7 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
-from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import SGDClassifier
 
 def readPulsarCSV(path="~/Data/PulsarStar"):
     return pd.read_csv(path + "/pulsar_stars.csv",
@@ -38,8 +39,18 @@ def preprocessPulsarData(pipeline, trainingData, testData):
     testData2 = pd.DataFrame(pipeline.transform(testData))
     return trainingData2, testData2
 
-def createTreeClassifier(trainingXData, trainingYData, seed=None):
-    classifier = tree.DecisionTreeClassifier(random_state=seed)
+def createClassifier(whichClass, trainingXData, trainingYData, seed=None, sgdLoss="hinge", sgdPenalty=None):
+    classifier = None
+
+    if (whichClass == "tree"):
+        classifier = DecisionTreeClassifier(random_state=seed)
+    elif (whichClass == "sgd"):
+        classifier = SGDClassifier(loss=sgdLoss,
+                                   penalty=sgdPenalty,
+                                   random_state=seed,
+                                   max_iter=1000,
+                                   tol=0.003)
+
     classifier.fit(trainingXData, trainingYData)
     return classifier
 
@@ -50,9 +61,9 @@ def testPulsarModel(model, trainingXData, trainingYData, testXData, testYData):
     print("Validation Score: {:.4f}".format(validationAverage))
     print("      Test Score: {:.4f}".format(model.score(testXData, testYData)))
 
-def test(preprocess=False, seed=None, verbose=False):
+def test(whichClass="tree", preprocess=False, seed=None, verbose=False, sgdLoss="hinge", sgdPenalty=None):
     if verbose == True:
-        print("Test Pulsar Data: preprocess={}".format(preprocess))
+        print("Test Pulsar Data: whichClass={} preprocess={}".format(whichClass, preprocess))
 
     X_train, X_test, y_train, y_test = splitPulsarData(readPulsarCSV(), testSize=0.33)
 
@@ -65,10 +76,10 @@ def test(preprocess=False, seed=None, verbose=False):
             
         X_train, X_test = preprocessPulsarData(pipeline, X_train, X_test)
 
-    treeClass = createTreeClassifier(X_train, y_train, seed=seed)
+    classifier = createClassifier(whichClass, X_train, y_train, seed=seed, sgdLoss=sgdLoss, sgdPenalty=sgdPenalty)
 
     if verbose == True:
         print("***** Model:")
-        print(treeClass)
+        print(classifier)
 
-    testPulsarModel(treeClass, X_train, y_train, X_test, y_test)
+    testPulsarModel(classifier, X_train, y_train, X_test, y_test)
