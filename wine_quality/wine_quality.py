@@ -6,6 +6,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
@@ -41,7 +42,7 @@ def splitWineQuality(data, testSize, goodBadLabels=False):
     return train_test_split(X, y, test_size=testSize)
 
 def createPipeline(trainingData, pcaN):
-    filters = [('scale', MinMaxScaler())] if pcaN == -1 else [('scale', MinMaxScaler()), ('pca', PCA(n_components=pcaN))]
+    filters = [('scale', MinMaxScaler())] if pcaN == -1 else [('scale', StandardScaler()), ('pca', PCA(n_components=pcaN))]
     pipeline = Pipeline(filters)
     pipeline.fit(trainingData)
     return pipeline
