@@ -77,13 +77,13 @@ def crossValidate(model, trainingX, trainingY, foldCV, metric):
     print("Validation Average: {}".format(validationAverage))
 
 def floatRange(begin, end, step=1.0):
-    gammas = []
+    values = []
     if begin <= end:
         cur = begin
         while cur < end:
-            gammas.append(cur)
+            values.append(cur)
             cur = cur + step
-    return gammas
+    return values
 
 def findBestParams(trainingX,
                    trainingY,
