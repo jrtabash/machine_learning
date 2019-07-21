@@ -17,3 +17,9 @@ Using a pulsar data set, where each pulsar candidate (row) is described using 8 
 
 The pulsar star data is available from the UC Irvine Machine Learning Repository at the following link:
   https://archive.ics.uci.edu/ml/datasets/HTRU2
+
+## Dow Jones Index
+Work in progress ...
+
+The Dow Jones Index data is available from the UC Irvine Machine Learning Repository at the following link:
+  https://archive.ics.uci.edu/ml/datasets/Dow+Jones+Index
