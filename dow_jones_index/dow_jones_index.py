@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -43,6 +44,13 @@ def splitDowJonesData(data, datesToWeeks=False):
     q1 = data[data.quarter == 1]
     q2 = data[data.quarter == 2]
     return q1[X_columns], q2[X_columns], q1[y_column], q2[y_column]
+
+def plotDowJonesData(xData, yData, xName):
+    plt.scatter(xData[xName], yData["percent_change_next_weeks_price"])
+    plt.grid(axis="both")
+    plt.xlabel(xName)
+    plt.ylabel("percent_change_next_weeks_price")
+    plt.show()
 
 def createPipeline(data, standardScaling=None, components=None):
     pipeline = None
