@@ -9,7 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 
-def readDowJonesCSV(path="~/Data/DowJonesIndex", datesToWeeks=False):
+def readDowJonesCSV(path="~/Data/DowJonesIndex"):
     dateUpdater = np.vectorize(lambda dStr: np.int64(pd.Timestamp(dStr).value / 1000000000))
     priceUpdater = np.vectorize(lambda pStr: np.float(pStr[1:]))
 
@@ -24,26 +24,36 @@ def readDowJonesCSV(path="~/Data/DowJonesIndex", datesToWeeks=False):
 
     dji.stock = dji.stock.astype('category')
 
-    if datesToWeeks:
-        dji = dji.rename(columns={"date": "week"})
-        dji.week = (dji.week - 1294358400) / 604800
-        dji.week = dji.week.astype('int')
-
     return dji
 
-def splitDowJonesData(data, datesToWeeks=False):
-    X_columns = ['week' if datesToWeeks else 'date',
-                 'open',
-                 'high',
-                 'low',
-                 'close',
-                 'volume',
-                 'percent_change_price',
-                 'days_to_next_dividend']
-    y_column = ['percent_change_next_weeks_price']
+def addDowJonesDerivedData(data):
+    data['percent_change_high'] = 100.0 * (data.high - data.open) / data.open
+    data['percent_change_low'] = 100.0 * (data.low - data.open) / data.open
+    data['week'] = (data.date - 1294358400) / 604800
+    data.week = data.week.astype('int')
+    
+def splitDowJonesData(data, columns):
+    X_columns = columns[:len(columns) - 1]
+    y_column = columns[len(columns) - 1:]
+    
     q1 = data[data.quarter == 1]
     q2 = data[data.quarter == 2]
     return q1[X_columns], q2[X_columns], q1[y_column], q2[y_column]
+
+def makeDowJonesColumns(week=True, stock=False, prices=True, volume=True, percent=True, derived=False):
+    columns = ['week'] if week else []
+    if stock:
+        columns.extend(['stock'])
+    if prices:
+        columns.extend(['open', 'high', 'low', 'close'])
+    if volume:
+        columns.extend(['volume'])
+    if percent:
+        columns.extend(['percent_change_price'])
+    if derived:
+        columns.extend(['percent_change_high', 'percent_change_low'])
+    columns.extend(['percent_change_next_weeks_price'])
+    return columns
 
 def plotDowJonesData(xData, yData, xName):
     plt.scatter(xData[xName], yData["percent_change_next_weeks_price"])
@@ -159,9 +169,10 @@ def findBestEstimator(trainingX,
         crossValidate(estimator, trainingX, trainingY, 3, "explained_variance")
     return estimator
 
-def getDataForTesting(standardScaling=None, components=None, datesToWeeks=False):
-    dji = readDowJonesCSV(datesToWeeks=datesToWeeks)
-    X_train, X_test, y_train, y_test = splitDowJonesData(dji, datesToWeeks=datesToWeeks)
+def getDataForTesting(columns, standardScaling=None, components=None):
+    dji = readDowJonesCSV()
+    addDowJonesDerivedData(dji)
+    X_train, X_test, y_train, y_test = splitDowJonesData(dji, columns)
     pipeline = createPipeline(X_train, standardScaling=standardScaling, components=components)
     if pipeline != None:
         X_train, X_test = preprocessData(pipeline, X_train, X_test)
