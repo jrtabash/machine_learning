@@ -85,9 +85,9 @@ def createPipeline(data, standardScaling=None, components=None):
         pipeline.fit(data)
     return pipeline
 
-def preprocessData(pipeline, trainingData, testData):
-    preTrainingData = pd.DataFrame(pipeline.transform(trainingData))
-    preTestData = pd.DataFrame(pipeline.transform(testData))
+def preprocessData(pipeline, trainingData, testData, copyColumnNames=False):
+    preTrainingData = pd.DataFrame(pipeline.transform(trainingData), columns=trainingData.columns if copyColumnNames else None)
+    preTestData = pd.DataFrame(pipeline.transform(testData), columns=testData.columns if copyColumnNames else None)
     return preTrainingData, preTestData
 
 def createSVR(trainingX, trainingY, C=1.0, gamma="auto", kernel="rbf", coef0=0.0, degree=3, epsilon=0.01):
@@ -186,5 +186,5 @@ def getDataForTesting(columns, standardScaling=None, components=None):
     X_train, X_test, y_train, y_test = splitDowJonesData(dji, columns)
     pipeline = createPipeline(X_train, standardScaling=standardScaling, components=components)
     if pipeline != None:
-        X_train, X_test = preprocessData(pipeline, X_train, X_test)
+        X_train, X_test = preprocessData(pipeline, X_train, X_test, copyColumnNames=(components is None))
     return X_train, X_test, y_train, y_test
