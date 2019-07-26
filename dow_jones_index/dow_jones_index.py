@@ -62,6 +62,17 @@ def plotDowJonesData(xData, yData, xName):
     plt.ylabel("percent_change_next_weeks_price")
     plt.show()
 
+def plotDowJonesResult(yPredict, yActual):
+    x = range(0, len(yActual))
+    index = 1
+    for yDataColorAndName in [(yPredict, "b", "Prediction"), (yActual, "r", "Actual")]:
+        plt.subplot(2, 1, index)
+        plt.plot(x, yDataColorAndName[0], yDataColorAndName[1])
+        plt.ylabel(yDataColorAndName[2])
+        plt.grid(axis="both")
+        index += 1
+    plt.show()
+
 def createPipeline(data, standardScaling=None, components=None):
     pipeline = None
     filters = []
