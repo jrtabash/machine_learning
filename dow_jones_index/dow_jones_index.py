@@ -55,11 +55,11 @@ def makeDowJonesColumns(week=True, stock=False, prices=True, volume=True, percen
     columns.extend(['percent_change_next_weeks_price'])
     return columns
 
-def plotDowJonesData(xData, yData, xName):
-    plt.scatter(xData[xName], yData["percent_change_next_weeks_price"])
+def plotDowJonesData(data, xName, yName="percent_change_next_weeks_price"):
+    plt.scatter(data[xName], data[yName])
     plt.grid(axis="both")
     plt.xlabel(xName)
-    plt.ylabel("percent_change_next_weeks_price")
+    plt.ylabel(yName)
     plt.show()
 
 def plotDowJonesResult(yPredict, yActual):
