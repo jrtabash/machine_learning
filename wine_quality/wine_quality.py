@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
@@ -19,22 +18,6 @@ def readWineQualityCSV(whichData='red', path="~/Data/WineQuality"):
         return pd.concat([readWineQualityCSV('red'), readWineQualityCSV('white')], axis=0, sort=False)
     else:
         return None
-
-def plotCorrelation(data):
-    pd.plotting.scatter_matrix(data)
-    plt.show()
-
-def showCorrelation(data, colorMap="YlOrRd"):
-    corr = data.corr(method="kendall")
-    plt.matshow(corr, cmap=plt.get_cmap(colorMap))
-    plt.show()
-
-def explorePlot(data, columnName):
-    plt.scatter(data[columnName], data["quality"])
-    plt.grid(axis="both")
-    plt.xlabel(columnName)
-    plt.ylabel("quality")
-    plt.show()
 
 def splitWineQuality(data, testSize, goodBadLabels=False):
     X = data.iloc[:, :11]

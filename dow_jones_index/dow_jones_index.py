@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -54,24 +53,6 @@ def makeDowJonesColumns(week=True, stock=False, prices=True, volume=True, percen
         columns.extend(['percent_change_high', 'percent_change_low'])
     columns.extend(['percent_change_next_weeks_price'])
     return columns
-
-def plotDowJonesData(data, xName, yName="percent_change_next_weeks_price"):
-    plt.scatter(data[xName], data[yName])
-    plt.grid(axis="both")
-    plt.xlabel(xName)
-    plt.ylabel(yName)
-    plt.show()
-
-def plotDowJonesResult(yPredict, yActual):
-    x = range(0, len(yActual))
-    index = 1
-    for yDataColorAndName in [(yPredict, "b", "Prediction"), (yActual, "r", "Actual")]:
-        plt.subplot(2, 1, index)
-        plt.plot(x, yDataColorAndName[0], yDataColorAndName[1])
-        plt.ylabel(yDataColorAndName[2])
-        plt.grid(axis="both")
-        index += 1
-    plt.show()
 
 def createPipeline(data, standardScaling=None, components=None):
     pipeline = None
