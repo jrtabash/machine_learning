@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
+import data_utils
 from sklearn.svm import SVR
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 
@@ -53,23 +50,6 @@ def makeDowJonesColumns(week=True, stock=False, prices=True, volume=True, percen
         columns.extend(['percent_change_high', 'percent_change_low'])
     columns.extend(['percent_change_next_weeks_price'])
     return columns
-
-def createPipeline(data, standardScaling=None, components=None):
-    pipeline = None
-    filters = []
-    if standardScaling != None:
-        filters.append(('scale', MinMaxScaler() if standardScaling == False else StandardScaler()))
-    if components != None:
-        filters.append(('pca', PCA(n_components=components)))
-    if len(filters) > 0:
-        pipeline = Pipeline(filters)
-        pipeline.fit(data)
-    return pipeline
-
-def preprocessData(pipeline, trainingData, testData, copyColumnNames=False):
-    preTrainingData = pd.DataFrame(pipeline.transform(trainingData), columns=trainingData.columns if copyColumnNames else None)
-    preTestData = pd.DataFrame(pipeline.transform(testData), columns=testData.columns if copyColumnNames else None)
-    return preTrainingData, preTestData
 
 def createSVR(trainingX, trainingY, C=1.0, gamma="auto", kernel="rbf", coef0=0.0, degree=3, epsilon=0.01):
     svr = SVR(kernel=kernel, C=C, gamma=gamma, coef0=coef0, degree=degree, epsilon=epsilon)
@@ -161,11 +141,11 @@ def findBestEstimator(trainingX,
         crossValidate(estimator, trainingX, trainingY, 3, "explained_variance")
     return estimator
 
-def getDataForTesting(columns, standardScaling=None, components=None):
+def getDataForTesting(columns, scale=None, components=None):
     dji = readDowJonesCSV()
     addDowJonesDerivedData(dji)
     X_train, X_test, y_train, y_test = splitDowJonesData(dji, columns)
-    pipeline = createPipeline(X_train, standardScaling=standardScaling, components=components)
-    if pipeline != None:
-        X_train, X_test = preprocessData(pipeline, X_train, X_test, copyColumnNames=(components is None))
+    pipeline = data_utils.createPipeline(X_train, scale=scale, components=components)
+    if pipeline is not None:
+        X_train, X_test = data_utils.preprocessData(pipeline, X_train, X_test, copyColumns=(components is None))
     return X_train, X_test, y_train, y_test

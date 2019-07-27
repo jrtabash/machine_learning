@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
+import data_utils
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import SGDClassifier
 
@@ -27,16 +26,6 @@ def splitPulsarData(data, testSize):
     X = data.iloc[:, :8]
     y = data.is_pulsar
     return train_test_split(X, y, test_size=testSize)
-
-def createPulsarPipeline(trainingData):
-    pipeline = Pipeline([('scale', MinMaxScaler())])
-    pipeline.fit(trainingData)
-    return pipeline
-
-def preprocessPulsarData(pipeline, trainingData, testData):
-    trainingData2 = pd.DataFrame(pipeline.transform(trainingData))
-    testData2 = pd.DataFrame(pipeline.transform(testData))
-    return trainingData2, testData2
 
 def createClassifier(whichClass, trainingXData, trainingYData, seed=None, sgdLoss="hinge", sgdPenalty=None):
     classifier = None
@@ -67,13 +56,13 @@ def test(whichClass="tree", preprocess=False, seed=None, verbose=False, sgdLoss=
     X_train, X_test, y_train, y_test = splitPulsarData(readPulsarCSV(), testSize=0.33)
 
     if preprocess == True:
-        pipeline = createPulsarPipeline(X_train)
+        pipeline = data_utils.createPipeline(X_train, scale="minmax")
         
         if verbose == True:
             print("***** Pipeline:")
             print(pipeline)
             
-        X_train, X_test = preprocessPulsarData(pipeline, X_train, X_test)
+        X_train, X_test = data_utils.preprocessData(pipeline, X_train, X_test)
 
     classifier = createClassifier(whichClass, X_train, y_train, seed=seed, sgdLoss=sgdLoss, sgdPenalty=sgdPenalty)
 

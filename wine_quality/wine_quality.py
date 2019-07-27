@@ -1,12 +1,9 @@
 import numpy as np
 import pandas as pd
+import data_utils
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
 def readWineQualityCSV(whichData='red', path="~/Data/WineQuality"):
@@ -23,17 +20,6 @@ def splitWineQuality(data, testSize, goodBadLabels=False):
     X = data.iloc[:, :11]
     y = data.quality if goodBadLabels == False else pd.Series(np.vectorize(lambda x: 1 if x >= 7 else 0)(data.quality))
     return train_test_split(X, y, test_size=testSize)
-
-def createPipeline(trainingData, pcaN):
-    filters = [('scale', MinMaxScaler())] if pcaN == -1 else [('scale', StandardScaler()), ('pca', PCA(n_components=pcaN))]
-    pipeline = Pipeline(filters)
-    pipeline.fit(trainingData)
-    return pipeline
-
-def preprocessData(pipeline, trainingData, testData):
-    trainingData2 = pd.DataFrame(pipeline.transform(trainingData))
-    testData2 = pd.DataFrame(pipeline.transform(testData))
-    return trainingData2, testData2
 
 def createRbfSVC(trainingXData, traingingYData, c=1.0, g=0.0001, seed=None):
     svc = SVC(C=c, kernel='rbf', gamma=g, random_state=seed)
@@ -71,8 +57,10 @@ def test(whichData='red', testSize=0.33, pcaN=-1, c=1.0, g=0.001, foldCV=5, seed
     wineQuality = readWineQualityCSV(whichData=whichData)
     X_train, X_test, y_train, y_test = splitWineQuality(wineQuality, testSize=testSize, goodBadLabels=goodBadLabels)
 
-    pipeline = createPipeline(X_train, pcaN=pcaN)
-    X_train_preprocessed, X_test_preprocessed = preprocessData(pipeline, X_train, X_test)
+    scale = "minmax" if pcaN == -1 else "standard"
+    components = None if pcaN == -1 else pcaN
+    pipeline = data_utils.createPipeline(X_train, scale=scale, components=components)
+    X_train_preprocessed, X_test_preprocessed = data_utils.preprocessData(pipeline, X_train, X_test)
 
     svc = None
     if bestEstimator == True:
