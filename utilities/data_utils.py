@@ -26,3 +26,12 @@ def preprocessData(pipeline, trainingData, testData, copyColumns=False):
     trainingData2 = pd.DataFrame(pipeline.transform(trainingData), columns=newColumns)
     testData2 = pd.DataFrame(pipeline.transform(testData), columns=newColumns)
     return trainingData2, testData2
+
+def floatRange(begin, end, step=1.0):
+    values = []
+    if begin <= end:
+        cur = begin
+        while cur < end:
+            values.append(cur)
+            cur = cur + step
+    return values
