@@ -1,5 +1,7 @@
 from matplotlib import pyplot as plt
 
+plt.style.use('dark_background')
+
 def plotCorrelation(data):
     pd.plotting.scatter_matrix(data)
     plt.show()
@@ -19,7 +21,7 @@ def plotData(data, xName, yName):
 def plotPredictVsActual(yPredict, yActual):
     x = range(0, len(yActual))
     index = 1
-    for yDataColorAndName in [(yPredict, "b", "Prediction"), (yActual, "r", "Actual")]:
+    for yDataColorAndName in [(yPredict, "c", "Prediction"), (yActual, "r", "Actual")]:
         plt.subplot(2, 1, index)
         plt.plot(x, yDataColorAndName[0], yDataColorAndName[1])
         plt.ylabel(yDataColorAndName[2])
