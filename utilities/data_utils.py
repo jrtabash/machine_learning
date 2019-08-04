@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import misc_utils
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
@@ -38,7 +39,7 @@ def floatRange(begin, end, step=1.0):
     return values
 
 def makeSegments(data, segmentOffset, segmentLength, flatten=True):
-    values = data.values if type(data) == pd.DataFrame else data
+    values = misc_utils.toNPArray(data)
     segments = []
     for segIdx in range(0, len(values) - segmentLength + 1, segmentOffset):
         segment = np.copy(values[segIdx:(segIdx + segmentLength)])
