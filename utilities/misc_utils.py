@@ -15,7 +15,7 @@ def toNPArray(data):
 
     raise(MiscUtilException("toNPArray: Unsupported data type '{}'".format(dataType)))
 
-def profitScore(yPredict, yActual):
+def profitScore(yActual, yPredict, calcSign=True):
     initialAmount = 100.0
     predictAmount = initialAmount
     actualAmount = initialAmount
@@ -36,6 +36,9 @@ def profitScore(yPredict, yActual):
     predictChange = predictAmount - initialAmount
     actualChange = actualAmount - initialAmount
 
-    scoreSign = 1 if np.sign(predictChange) == np.sign(actualChange) else -1
+    scoreSign = -1 if calcSign and np.sign(predictChange) != np.sign(actualChange) else 1
 
     return scoreSign * abs(predictChange - actualChange) / initialAmount
+
+def makeProfitScorer ():
+    return make_scorer(profitScore, greater_is_better=False, calcSign=False)

@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 import data_utils
+import misc_utils
 from sklearn.svm import SVR
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer
 
 def readDowJonesCSV(path="~/Data/DowJonesIndex"):
     dateUpdater = np.vectorize(lambda dStr: np.int64(pd.Timestamp(dStr).value / 1000000000))
@@ -56,12 +58,12 @@ def createSVR(trainingX, trainingY, C=1.0, gamma="auto", kernel="rbf", coef0=0.0
     svr.fit(trainingX.values, trainingY.values.ravel())
     return svr
 
-def crossValidate(model, trainingX, trainingY, foldCV, metric):
+def crossValidate(model, trainingX, trainingY, foldCV, scoring):
     validationScores = cross_val_score(model,
                                        trainingX.values,
                                        trainingY.values.ravel(),
                                        cv=foldCV,
-                                       scoring=metric)
+                                       scoring=scoring)
     validationAverage = np.average(validationScores)
     print(" Validation Scores: {}".format(validationScores))
     print("Validation Average: {}".format(validationAverage))
@@ -129,7 +131,7 @@ def findBestEstimator(trainingX,
     if verbose:
         print("Estimator: {}".format(estimator));
     if validate:
-        crossValidate(estimator, trainingX, trainingY, 3, "explained_variance")
+        crossValidate(estimator, trainingX, trainingY, 3, scoring)
     return estimator
 
 def getDataForTesting(columns, scale=None, components=None):
