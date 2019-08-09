@@ -41,5 +41,5 @@ def profitScore(yActual, yPredict, calcSign=True):
 
     return scoreSign * abs(predictChange - actualChange) / initialAmount
 
-def makeProfitScorer ():
+def makeProfitLossFtn():
     return make_scorer(profitScore, greater_is_better=False, calcSign=False)
