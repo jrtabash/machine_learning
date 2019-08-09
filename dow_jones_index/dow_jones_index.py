@@ -5,7 +5,6 @@ import misc_utils
 from sklearn.svm import SVR
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import make_scorer
 
 def readDowJonesCSV(path="~/Data/DowJonesIndex"):
     dateUpdater = np.vectorize(lambda dStr: np.int64(pd.Timestamp(dStr).value / 1000000000))
