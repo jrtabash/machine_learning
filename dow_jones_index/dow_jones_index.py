@@ -23,6 +23,16 @@ def readDowJonesCSV(path="~/Data/DowJonesIndex"):
 
     return dji
 
+def filterStocksByMatchingQuarterDirection(data, sameDirection=True):
+    groupBy = data[['quarter', 'stock', 'percent_change_next_weeks_price']].groupby(['quarter', 'stock']).mean().reset_index()
+    ones = groupBy[groupBy.quarter == 1]
+    twos = groupBy[groupBy.quarter == 2]
+    onesSign = np.sign(ones.percent_change_next_weeks_price.values)
+    twosSign = np.sign(twos.percent_change_next_weeks_price.values)
+    flags = onesSign == twosSign if sameDirection else onesSign != twosSign
+    stocks = np.unique(ones.stock[flags].values)
+    return data[data.stock.isin(stocks)]
+
 def addDowJonesDerivedData(data):
     data['percent_change_high'] = 100.0 * (data.high - data.open) / data.open
     data['percent_change_low'] = 100.0 * (data.low - data.open) / data.open
@@ -133,8 +143,10 @@ def findBestEstimator(trainingX,
         crossValidate(estimator, trainingX, trainingY, 3, scoring)
     return estimator
 
-def getDataForTesting(columns, scale=None, components=None):
+def getDataForTesting(columns, scale=None, components=None, filterSameDirection=None):
     dji = readDowJonesCSV()
+    if filterSameDirection is not None:
+        dji = filterStocksByMatchingQuarterDirection(dji, sameDirection=filterSameDirection)
     addDowJonesDerivedData(dji)
     X_train, X_test, y_train, y_test = splitDowJonesData(dji, columns)
     pipeline = data_utils.createPipeline(X_train, scale=scale, components=components)
