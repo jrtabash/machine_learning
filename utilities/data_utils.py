@@ -38,12 +38,14 @@ def floatRange(begin, end, step=1.0):
             cur = cur + step
     return values
 
-def makeSegments(data, segmentOffset, segmentLength, flatten=True):
+def makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=None):
     values = misc_utils.toNPArray(data)
     segments = []
     for segIdx in range(0, len(values) - segmentLength + 1, segmentOffset):
         segment = np.copy(values[segIdx:(segIdx + segmentLength)])
         if flatten:
             segment = segment.flatten()
+        if aggFtn:
+            segment = aggFtn(segment)
         segments.append(segment)
     return np.array(segments)
