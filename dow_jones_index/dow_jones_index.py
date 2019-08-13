@@ -143,11 +143,15 @@ def findBestEstimator(trainingX,
         crossValidate(estimator, trainingX, trainingY, 3, scoring)
     return estimator
 
-def makeDowJonesSegments(data, segmentOffset, segmentLength, yAggFtn=None):
-    xSegments = data_utils.makeSegments(data, segmentOffset, segmentLength, flatten=True)
+def makeDowJonesSegments(data, segmentOffset, segmentLength, xAggFtn=None, yAggFtn=None):
+    xSegments = data_utils.makeSegments(data, segmentOffset, segmentLength, flatten=(xAggFtn is None), aggFtn=xAggFtn)
+    if xAggFtn is not None:
+        xSegments = np.array([s.flatten() for s in xSegments])
+
     ySegments = None
     if yAggFtn is not None:
         ySegments = data_utils.makeSegments(data, segmentOffset, segmentLength, flatten=False, aggFtn=yAggFtn)
+
     return xSegments, ySegments
 
 def getDataForTesting(columns, scale=None, components=None, filterSameDirection=None):
