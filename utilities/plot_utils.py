@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import pandas as pd
+import seaborn as sns
 
 plt.style.use('dark_background')
 
@@ -10,6 +11,10 @@ def plotCorrelation(data):
 def plotCorrelationMatrix(data, colorMap="YlOrRd"):
     corr = data.corr(method="kendall")
     plt.matshow(corr, cmap=plt.get_cmap(colorMap))
+    plt.show()
+
+def plotCorrelationHeatmap(data, colorMap=None):
+    sns.heatmap(data.corr(), annot=True, fmt=".2f", cbar=True, cmap=colorMap)
     plt.show()
 
 def plotData(data, xName, yName):
