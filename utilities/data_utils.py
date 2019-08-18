@@ -38,6 +38,15 @@ def floatRange(begin, end, step=1.0):
             cur = cur + step
     return values
 
+def makeSegColAggFtn(ftn, col, nRows):
+    return lambda seg: [ftn([seg[row][col] for row in range(nRows)])]
+
+def makeSegRowAggFtn(ftn, nCols, nRows):
+    return lambda seg: [ftn([seg[row][col] for row in range(nRows)]) for col in range(nCols)]
+
+def makeSegSelectFtn(colBegin, colEnd, rowBegin, rowEnd):
+    return lambda seg: [seg[r][colBegin:colEnd] for r in range(rowBegin, rowEnd)]
+
 def makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=None):
     values = misc_utils.toNPArray(data)
     segments = []
