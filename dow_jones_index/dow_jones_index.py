@@ -43,8 +43,8 @@ def splitDowJonesData(data, columns):
     X_columns = columns[:len(columns) - 1]
     y_column = columns[len(columns) - 1:]
     
-    q1 = data[data.quarter == 1]
-    q2 = data[data.quarter == 2]
+    q1 = data[data.quarter == 1].reset_index()
+    q2 = data[data.quarter == 2].reset_index()
     return q1[X_columns], q2[X_columns], q1[y_column], q2[y_column]
 
 def makeDowJonesColumns(week=True, stock=False, prices=True, volume=True, percent=True, derived=False):
@@ -138,7 +138,7 @@ def findBestEstimator(trainingX,
                           degree=bestParams["degree"],
                           epsilon=bestParams["epsilon"])
     if verbose:
-        print("Estimator: {}".format(estimator));
+        print("Estimator: {}".format(estimator))
     if validate:
         crossValidate(estimator, trainingX, trainingY, 3, scoring)
     return estimator
