@@ -39,22 +39,22 @@ def floatRange(begin, end, step=1.0):
     return values
 
 def makeSegColAggFtn(ftn, col, nRows):
-    return lambda seg: [ftn([seg[row][col] for row in range(nRows)])]
+    return lambda seg: np.array([ftn([seg[row][col] for row in range(nRows)])])
 
 def makeSegRowAggFtn(ftn, nCols, nRows):
-    return lambda seg: [ftn([seg[row][col] for row in range(nRows)]) for col in range(nCols)]
+    return lambda seg: np.array([ftn([seg[row][col] for row in range(nRows)]) for col in range(nCols)])
 
 def makeSegSelectFtn(colBegin, colEnd, rowBegin, rowEnd):
-    return lambda seg: [seg[r][colBegin:colEnd] for r in range(rowBegin, rowEnd)]
+    return lambda seg: np.array([seg[r][colBegin:colEnd] for r in range(rowBegin, rowEnd)])
 
 def makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=None):
     values = misc_utils.toNPArray(data)
     segments = []
     for segIdx in range(0, len(values) - segmentLength + 1, segmentOffset):
         segment = np.copy(values[segIdx:(segIdx + segmentLength)])
-        if flatten:
-            segment = segment.flatten()
         if aggFtn:
             segment = aggFtn(segment)
+        if flatten:
+            segment = segment.flatten()
         segments.append(segment)
     return np.array(segments)
