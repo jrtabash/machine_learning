@@ -19,7 +19,10 @@ The pulsar star data is available from the UC Irvine Machine Learning Repository
   https://archive.ics.uci.edu/ml/datasets/HTRU2
 
 ## Dow Jones Index
-Work in progress ...
+
+Applying regression to predict the percentage change in stock price in the following week.
+
+Using Dow Jones Index data, where each row consists of weekly stock data, including stock volume, open/close/high/low prices, and percent price change.
 
 The Dow Jones Index data is available from the UC Irvine Machine Learning Repository at the following link:
   https://archive.ics.uci.edu/ml/datasets/Dow+Jones+Index
