@@ -61,3 +61,21 @@ def profitScore(yActual, yPredict, calcSign=True):
 
 def makeProfitLossFtn():
     return make_scorer(profitScore, greater_is_better=False, calcSign=False)
+
+def convertK2C(kelvin):
+    return kelvin - 273.15
+
+def convertC2F(celsius):
+    return (celsius * 9 / 5) + 32
+
+def convertF2C(fahrenheit):
+    return (fahrenheit - 32) * 5 / 9
+
+def convertC2K(celsius):
+    return celsius + 273.15
+
+def convertK2F(kelvin):
+    return convertC2F(convertK2C(kelvin))
+
+def convertF2K(fahrenheit):
+    return convertC2K(convertF2C(fahrenheit))
