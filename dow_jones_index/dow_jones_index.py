@@ -23,6 +23,11 @@ def readDowJonesCSV(path="~/Data/DowJonesIndex"):
 
     return dji
 
+def filterStocks(data, names):
+    if type(names) == str:
+        names = [names]
+    return data[data.stock.isin(names)]
+
 def filterStocksByMatchingQuarterDirection(data, sameDirection=True):
     groupBy = data[['quarter', 'stock', 'percent_change_next_weeks_price']].groupby(['quarter', 'stock']).mean().reset_index()
     ones = groupBy[groupBy.quarter == 1]
@@ -152,8 +157,10 @@ def makeDowJonesSegments(data, segmentOffset, segmentLength, xAggFtn=None, yAggF
 
     return xSegments, ySegments
 
-def getDataForTesting(columns, scale=None, components=None, filterSameDirection=None):
+def getDataForTesting(columns, scale=None, components=None, stocks=None, filterSameDirection=None):
     dji = readDowJonesCSV()
+    if stocks is not None:
+        dji = filterStocks(dji, stocks)
     if filterSameDirection is not None:
         dji = filterStocksByMatchingQuarterDirection(dji, sameDirection=filterSameDirection)
     addDowJonesDerivedData(dji)
