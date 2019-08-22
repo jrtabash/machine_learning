@@ -17,6 +17,24 @@ def toNPArray(data):
     raise(MiscUtilException("toNPArray: Unsupported data type '{}'".format(dataType)))
 
 def profitScore(yActual, yPredict, calcSign=True):
+    """ Calculates a profit score of predicted relative to actual.
+
+    The smaller the absolute of the score the better.
+
+    When calcSign=True, the function calculates a signed result for which the sign
+    is based on the following actual change vs predicted change rules:
+
+      Actual | Predicted | Sign
+     --------+-----------+------
+        +    |     +     |  +
+        +    |     -     |  -
+        -    |     +     |  -
+        -    |     -     |  +
+
+    The function can be used as a loss metric with make_scorer by using calcSign=False.
+
+    """
+
     initialAmount = 100.0
     predictAmount = initialAmount
     actualAmount = initialAmount
