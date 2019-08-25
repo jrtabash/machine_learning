@@ -3,6 +3,7 @@ import pandas as pd
 import plot_utils
 import data_utils
 import misc_utils
+import datetime_utils
 
 def getMetroTrafficData(path="~/Data/MetroInterstateTrafficVolume/", reindex=False, temp=None):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")

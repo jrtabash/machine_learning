@@ -32,7 +32,6 @@ def profitScore(yActual, yPredict, calcSign=True):
         -    |     -     |  +
 
     The function can be used as a loss metric with make_scorer by using calcSign=False.
-
     """
 
     initialAmount = 100.0
@@ -79,3 +78,9 @@ def convertK2F(kelvin):
 
 def convertF2K(fahrenheit):
     return convertC2K(convertF2C(fahrenheit))
+
+def makePrecedingPairs(values, flatten=False):
+    precedingPairs = np.array([(x - 1, x) for x in values])
+    if flatten:
+        precedingPairs = precedingPairs.flatten()
+    return precedingPairs
