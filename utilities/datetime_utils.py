@@ -33,3 +33,12 @@ def findDateTimeGaps(data, timeDelta, dateTimeColumn='date_time', calcPreceding=
     if calcPreceding:
         gaps = misc_utils.makePrecedingPairs(gaps, flatten=True)
     return gaps
+
+def dateTimeRange(begin, end, step=TimeDelta.Nanosecond):
+    values = []
+    if begin <= end:
+        cur = begin
+        while cur < end:
+            values.append(cur)
+            cur = cur + pd.Timedelta(step)
+    return values
