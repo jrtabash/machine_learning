@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import misc_utils
 
-class TimeDelta:
+class TimeStep:
     Nanosecond  = 1
     Microsecond = 1000 * Nanosecond
     Millisecond = 1000 * Microsecond
@@ -12,29 +12,29 @@ class TimeDelta:
     Day         = 24 * Hour
     Week        = 7 * Day
 
-def calcDateTimeDiff(dateTime, delta=TimeDelta.Hour):
+def calcDateTimeDiff(dateTime, step=TimeStep.Hour):
     df = dateTime.diff(periods=1)
     if type(df) == pd.DataFrame:
         df = df[df.columns[0]]
-    df.values[0] = delta
-    df = pd.Series(df.values / delta, dtype=float)
+    df.values[0] = step
+    df = pd.Series(df.values / step, dtype=float)
     return df
 
-def findDateTimeDuplicates(data, timeDelta, dateTimeColumn='date_time', calcPreceding=False):
-    dups = calcDateTimeDiff(data[[dateTimeColumn]], delta=timeDelta)
+def findDateTimeDuplicates(data, step, dateTimeColumn='date_time', calcPreceding=False):
+    dups = calcDateTimeDiff(data[[dateTimeColumn]], step=step)
     dups = data[dups == 0.0].dropna().index.values
     if calcPreceding:
         dups = misc_utils.makePrecedingPairs(dups, flatten=True)
     return dups
 
-def findDateTimeGaps(data, timeDelta, dateTimeColumn='date_time', calcPreceding=False):
-    gaps = calcDateTimeDiff(data[[dateTimeColumn]], delta=timeDelta)
+def findDateTimeGaps(data, step, dateTimeColumn='date_time', calcPreceding=False):
+    gaps = calcDateTimeDiff(data[[dateTimeColumn]], step=step)
     gaps = data[gaps > 1.0].dropna().index.values
     if calcPreceding:
         gaps = misc_utils.makePrecedingPairs(gaps, flatten=True)
     return gaps
 
-def dateTimeRange(begin, end, step=TimeDelta.Nanosecond):
+def dateTimeRange(begin, end, step=TimeStep.Nanosecond):
     values = []
     if begin <= end:
         cur = begin
