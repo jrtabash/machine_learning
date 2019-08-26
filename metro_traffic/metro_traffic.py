@@ -4,6 +4,7 @@ import plot_utils
 import data_utils
 import misc_utils
 import datetime_utils
+from datetime_utils import TimeDelta
 
 def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")
@@ -15,6 +16,14 @@ def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt.weather_description = mt.weather_description.astype('category')
 
     return mt
+
+def cleanupMetroTrafficDups(data, action='drop_first'):
+    dups = datetime_utils.findDateTimeDuplicates(data, timeDelta=TimeDelta.Hour, calcPreceding=False)
+    if action == 'drop_second':
+        data = data.drop(dups)
+    elif action == 'drop_first':
+        data = data.drop([x - 1 for x in dups])
+    return data
 
 def updateMetroTrafficData(data, reindex=False, temp=None):
     if reindex:
@@ -28,7 +37,9 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
 
     return data
 
-def getMetroTrafficData(dateTimeIndex=False, temp=None):
+def getMetroTrafficData(dupsAction='drop_first', dateTimeIndex=False, temp=None):
     mt = readMetroTrafficCSV()
+    if dupsAction is not None:
+        mt = cleanupMetroTrafficDups(mt, action=dupsAction)
     mt = updateMetroTrafficData(mt, reindex=dateTimeIndex, temp=temp)
     return mt
