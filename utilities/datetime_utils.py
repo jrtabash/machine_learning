@@ -20,18 +20,18 @@ def calcDateTimeDiff(dateTime, step=TimeStep.Hour):
     df = pd.Series(df.values / step, dtype=float)
     return df
 
-def findDateTimeDuplicates(data, step, dateTimeColumn='date_time', calcPreceding=False):
+def findDateTimeDuplicates(data, step, dateTimeColumn='date_time', calcPreceding=False, flatten=True):
     dups = calcDateTimeDiff(data[[dateTimeColumn]], step=step)
     dups = data[dups == 0.0].dropna().index.values
     if calcPreceding:
-        dups = misc_utils.makePrecedingPairs(dups, flatten=True)
+        dups = misc_utils.makePrecedingPairs(dups, flatten=flatten)
     return dups
 
-def findDateTimeGaps(data, step, dateTimeColumn='date_time', calcPreceding=False):
+def findDateTimeGaps(data, step, dateTimeColumn='date_time', calcPreceding=False, flatten=True):
     gaps = calcDateTimeDiff(data[[dateTimeColumn]], step=step)
     gaps = data[gaps > 1.0].dropna().index.values
     if calcPreceding:
-        gaps = misc_utils.makePrecedingPairs(gaps, flatten=True)
+        gaps = misc_utils.makePrecedingPairs(gaps, flatten=flatten)
     return gaps
 
 def dateTimeRange(begin, end, step=TimeStep.Nanosecond):

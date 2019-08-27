@@ -58,3 +58,9 @@ def makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=None):
             segment = segment.flatten()
         segments.append(segment)
     return np.array(segments)
+
+def insertRows(data, index, rows):
+    preData = data.iloc[:index, :]
+    newData = pd.DataFrame(rows, columns=data.columns)
+    postData = data.iloc[index:, :]
+    return preData.append(newData).append(postData).reset_index(drop=True)

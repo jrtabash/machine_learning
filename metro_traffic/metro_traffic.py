@@ -5,6 +5,8 @@ import data_utils
 import misc_utils
 import datetime_utils
 from datetime_utils import TimeStep
+from cleanup_utils import DuplicatesProcessor
+from cleanup_utils import GapsProcessor
 
 def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")
@@ -17,13 +19,27 @@ def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
 
     return mt
 
-def cleanupMetroTrafficDups(data, action='drop_first'):
-    dups = datetime_utils.findDateTimeDuplicates(data, step=TimeStep.Hour, calcPreceding=False)
-    if action == 'drop_second':
-        data = data.drop(dups)
-    elif action == 'drop_first':
-        data = data.drop([x - 1 for x in dups])
-    return data
+def cleanupMetroTrafficDups(data, action=DuplicatesProcessor.Action.DropFirst):
+    dupsProc = DuplicatesProcessor(
+        action,
+        lambda mt: datetime_utils.findDateTimeDuplicates(mt,
+                                                         step=TimeStep.Hour,
+                                                         calcPreceding=True,
+                                                         flatten=False))
+    return dupsProc.process(data)
+
+def cleanupMetroTrafficGaps(data, action=GapsProcessor.Action.CarryForward):
+    gapsProc = GapsProcessor(
+        action,
+        list(data.columns).index('date_time'), # gap column index
+        lambda mt: datetime_utils.findDateTimeGaps(mt,
+                                                   step=TimeStep.Hour,
+                                                   calcPreceding=True,
+                                                   flatten=False),
+        lambda begin, end: datetime_utils.dateTimeRange(begin,
+                                                        end,
+                                                        step=TimeStep.Hour))
+    return gapsProc.process(data)
 
 def updateMetroTrafficData(data, reindex=False, temp=None):
     if reindex:
@@ -37,9 +53,14 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
 
     return data
 
-def getMetroTrafficData(dupsAction='drop_first', dateTimeIndex=False, temp=None):
+def getMetroTrafficData(dupsAction=DuplicatesProcessor.Action.DropFirst,
+                        gapsAction=GapsProcessor.Action.CarryForward,
+                        dateTimeIndex=False,
+                        temp=None):
     mt = readMetroTrafficCSV()
     if dupsAction is not None:
         mt = cleanupMetroTrafficDups(mt, action=dupsAction)
+    if gapsAction is not None:
+        mt = cleanupMetroTrafficGaps(mt, action=gapsAction)
     mt = updateMetroTrafficData(mt, reindex=dateTimeIndex, temp=temp)
     return mt
