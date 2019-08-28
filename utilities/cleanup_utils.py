@@ -19,8 +19,9 @@ class DuplicatesProcessor:
             return data
 
         dups = self.findDupsFtn(data)
-        if len(dups) > 0:
-            data = self.processDupsFtn(data, dups)
+        while len(dups) > 0:
+            data = self.processDupsFtn(data, [dups[0]])
+            dups = self.findDupsFtn(data)
         return data
 
     #
