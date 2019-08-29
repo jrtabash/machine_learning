@@ -3,39 +3,6 @@ import pandas as pd
 import data_utils
 
 #
-# Duplicates Processor
-#
-class DuplicatesProcessor:
-    class Action:
-        DropFirst  = 0
-        DropSecond = 1
-
-    def __init__(self, action, findDupsFtn):
-        self.processDupsFtn = self.makeProcessDupsFtn(action)
-        self.findDupsFtn = findDupsFtn
-
-    def process(self, data):
-        if self.findDupsFtn is None:
-            return data
-
-        dups = self.findDupsFtn(data)
-        while len(dups) > 0:
-            data = self.processDupsFtn(data, [dups[0]])
-            dups = self.findDupsFtn(data)
-        return data
-
-    #
-    # Below this point for class internal use
-    #
-    def makeProcessDupsFtn(self, action):
-        if action == self.Action.DropFirst:
-            return lambda data, dups: data.drop([begin for begin, _ in dups]).reset_index(drop=True)
-        elif action == self.Action.DropSecond:
-            return lambda data, dups: data.drop([end for _, end in dups]).reset_index(drop=True)
-        else:
-            return None
-
-#
 # Gaps Processor
 #
 class GapsProcessor:
