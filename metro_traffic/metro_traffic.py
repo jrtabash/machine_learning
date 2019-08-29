@@ -19,7 +19,7 @@ def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     return mt
 
 def cleanupMetroTrafficDups(data, keep):
-    return data.drop_duplicates(keep=keep, subset=['date_time'])
+    return data.drop_duplicates(keep=keep, subset=['date_time']).reset_index(drop=True)
 
 def cleanupMetroTrafficGaps(data, action=GapsProcessor.Action.CarryForward):
     gapsProc = GapsProcessor(
