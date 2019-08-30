@@ -7,6 +7,10 @@ import datetime_utils
 from datetime_utils import TimeStep
 from sklearn.preprocessing import LabelEncoder
 
+class MetroTrafficException(Exception):
+    def __init__(self, message):
+        self.message = message
+
 holidayEncoder = LabelEncoder()
 weatherEncoder = LabelEncoder()
 descriptionEncoder = LabelEncoder()
@@ -32,6 +36,8 @@ def encodeMetroDataCategories(data):
     data.weather_description = descriptionEncoder.transform(data.weather_description)
 
 def cleanupMetroTrafficDups(data, keep):
+    if keep != 'first' and keep != 'last':
+        raise(MetroTrafficException("Invalid duplicates keep parameter '{}'".format(keep)))
     return data.drop_duplicates(keep=keep, subset=['date_time']).reset_index(drop=True)
 
 def cleanupMetroTrafficGaps(data, action):
@@ -45,6 +51,8 @@ def cleanupMetroTrafficGaps(data, action):
         data = data.bfill()
     elif action == 'interpolate':
         data = data.interpolate()
+    else:
+        raise(MetroTrafficException("Invalid gaps action parameters '{}'".format(action)))
 
     return data.reset_index(drop=False)
 
@@ -53,10 +61,13 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
         data.index = data.date_time
         data = data.drop(columns=['date_time'])
 
-    if temp == 'C':
-        data.temp = np.vectorize(misc_utils.convertK2C)(data.temp)
-    elif temp == 'F':
-        data.temp = np.vectorize(misc_utils.convertK2F)(data.temp)
+    if temp is not None:
+        if temp == 'C':
+            data.temp = np.vectorize(misc_utils.convertK2C)(data.temp)
+        elif temp == 'F':
+            data.temp = np.vectorize(misc_utils.convertK2F)(data.temp)
+        else:
+            raise(MetroTrafficException("Invalid update temp parameter '{}'".format(temp)))
 
     return data
 
@@ -66,11 +77,19 @@ def getMetroTrafficData(dupsKeep='last',
                         temp=None,
                         encode=True):
     mt = readMetroTrafficCSV()
+
     if encode:
         encodeMetroDataCategories(mt)
+
     if dupsKeep is not None:
         mt = cleanupMetroTrafficDups(mt, keep=dupsKeep)
+
     if gapsAction is not None:
         mt = cleanupMetroTrafficGaps(mt, action=gapsAction)
+        mt.holiday = mt.holiday.astype(int)
+        mt.weather_main = mt.weather_main.astype(int)
+        mt.weather_description = mt.weather_description.astype(int)
+
     mt = updateMetroTrafficData(mt, reindex=dateTimeIndex, temp=temp)
+
     return mt
