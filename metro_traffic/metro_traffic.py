@@ -15,6 +15,15 @@ holidayEncoder = LabelEncoder()
 weatherEncoder = LabelEncoder()
 descriptionEncoder = LabelEncoder()
 
+def holidayLabel(encoding):
+    return holidayEncoder.classes_[encoding]
+
+def weatherLabel(encoding):
+    return weatherEncoder.classes_[encoding]
+
+def descriptionLabel(encoding):
+    return descriptionEncoder.classes_[encoding]
+
 def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")
 
@@ -80,12 +89,10 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
 def getMetroTrafficData(dupsKeep='last',
                         gapsAction='fill',
                         dateTimeIndex=False,
-                        temp=None,
-                        encode=True):
+                        temp=None):
     mt = readMetroTrafficCSV()
 
-    if encode:
-        encodeMetroDataCategories(mt)
+    encodeMetroDataCategories(mt)
 
     if dupsKeep is not None:
         mt = cleanupMetroTrafficDups(mt, keep=dupsKeep)
