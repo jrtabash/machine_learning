@@ -51,6 +51,9 @@ def cleanupMetroTrafficGaps(data, action):
         data = data.bfill()
     elif action == 'interpolate':
         data = data.interpolate()
+        data.holiday = np.round(data.holiday).astype(int)
+        data.weather_main = np.round(data.weather_main).astype(int)
+        data.weather_description = np.round(data.weather_description).astype(int)
     else:
         raise(MetroTrafficException("Invalid gaps action parameters '{}'".format(action)))
 
@@ -86,9 +89,6 @@ def getMetroTrafficData(dupsKeep='last',
 
     if gapsAction is not None:
         mt = cleanupMetroTrafficGaps(mt, action=gapsAction)
-        mt.holiday = mt.holiday.astype(int)
-        mt.weather_main = mt.weather_main.astype(int)
-        mt.weather_description = mt.weather_description.astype(int)
 
     mt = updateMetroTrafficData(mt, reindex=dateTimeIndex, temp=temp)
 
