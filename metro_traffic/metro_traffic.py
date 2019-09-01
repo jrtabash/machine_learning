@@ -51,12 +51,15 @@ def cleanupMetroTrafficGaps(data, action):
         data = data.bfill()
     elif action == 'interpolate':
         data = data.interpolate()
-        data.holiday = np.round(data.holiday).astype(int)
-        data.weather_main = np.round(data.weather_main).astype(int)
-        data.weather_description = np.round(data.weather_description).astype(int)
+        data.holiday = np.round(data.holiday)
+        data.weather_main = np.round(data.weather_main)
+        data.weather_description = np.round(data.weather_description)
     else:
         raise(MetroTrafficException("Invalid gaps action parameters '{}'".format(action)))
 
+    data.holiday = data.holiday.astype(int)
+    data.weather_main = data.weather_main.astype(int)
+    data.weather_description = data.weather_description.astype(int)
     return data.reset_index(drop=False)
 
 def updateMetroTrafficData(data, reindex=False, temp=None):
