@@ -14,6 +14,13 @@ class MetroTrafficException(Exception):
 holidayEncoder = LabelEncoder()
 weatherEncoder = LabelEncoder()
 descriptionEncoder = LabelEncoder()
+weekdayMap = dict({1: 'Monday',
+                   2: 'Tuesday',
+                   3: 'Wednesday',
+                   4: 'Thursday',
+                   5: 'Friday',
+                   6: 'Saturday',
+                   7: 'Sunday'})
 
 def holidayLabel(encoding):
     return holidayEncoder.classes_[encoding]
@@ -23,6 +30,9 @@ def weatherLabel(encoding):
 
 def descriptionLabel(encoding):
     return descriptionEncoder.classes_[encoding]
+
+def weekdayLabel(wkdy):
+    return weekdayMap[wkdy]
 
 def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")
@@ -72,6 +82,9 @@ def cleanupMetroTrafficGaps(data, action):
     return data.reset_index(drop=False)
 
 def updateMetroTrafficData(data, reindex=False, temp=None):
+    data.insert(1, 'hour', np.vectorize(lambda x: x.hour)(data.date_time.dt.time))
+    data.insert(1, 'week_day', np.vectorize(lambda x: x.isoweekday())(data.date_time.dt.date))
+
     if reindex:
         data.index = data.date_time
         data = data.drop(columns=['date_time'])
