@@ -6,6 +6,7 @@ import misc_utils
 import datetime_utils
 from datetime_utils import TimeStep
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
 
 class MetroTrafficException(Exception):
     def __init__(self, message):
@@ -14,6 +15,7 @@ class MetroTrafficException(Exception):
 holidayEncoder = LabelEncoder()
 weatherEncoder = LabelEncoder()
 descriptionEncoder = LabelEncoder()
+
 weekdayMap = dict({1: 'Monday',
                    2: 'Tuesday',
                    3: 'Wednesday',
@@ -21,6 +23,11 @@ weekdayMap = dict({1: 'Monday',
                    5: 'Friday',
                    6: 'Saturday',
                    7: 'Sunday'})
+intensityMap = dict({1: 'Very Low',
+                     2: 'Low',
+                     3: 'Medium',
+                     4: 'High',
+                     5: 'Very High'})
 
 def holidayLabel(encoding):
     return holidayEncoder.classes_[encoding]
@@ -33,6 +40,21 @@ def descriptionLabel(encoding):
 
 def weekdayLabel(wkdy):
     return weekdayMap[wkdy]
+
+def intensityLabel(intsty):
+    return intensityMap[intsty]
+
+def volumeToIntensity(volume):
+    if volume < 500:    # Very Low
+        return 1
+    elif volume < 2000: # Low
+        return 2
+    elif volume < 3500: # Medium
+        return 3
+    elif volume < 5000: # High
+        return 4
+    else:               # Very High
+        return 5
 
 def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")
@@ -82,8 +104,9 @@ def cleanupMetroTrafficGaps(data, action):
     return data.reset_index(drop=False)
 
 def updateMetroTrafficData(data, reindex=False, temp=None):
-    data.insert(1, 'hour', np.vectorize(lambda x: x.hour)(data.date_time.dt.time))
-    data.insert(1, 'week_day', np.vectorize(lambda x: x.isoweekday())(data.date_time.dt.date))
+    data.insert(0, 'hour', np.vectorize(lambda x: x.hour)(data.date_time.dt.time))
+    data.insert(0, 'week_day', np.vectorize(lambda x: x.isoweekday())(data.date_time.dt.date))
+    data.insert(len(data.columns), 'intensity', np.vectorize(volumeToIntensity)(data.traffic_volume))
 
     if reindex:
         data.index = data.date_time
@@ -98,6 +121,9 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
             raise(MetroTrafficException("Invalid update temp parameter '{}'".format(temp)))
 
     return data
+
+def splitMetroTrafficData(data):
+    return train_test_split(data.drop(columns=['traffic_volume']), data[['traffic_volume']], test_size=0.25)
 
 def getMetroTrafficData(dupsKeep='last',
                         gapsAction='fill',
