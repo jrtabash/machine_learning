@@ -122,8 +122,10 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
 
     return data
 
-def splitMetroTrafficData(data):
-    return train_test_split(data.drop(columns=['traffic_volume']), data[['traffic_volume']], test_size=0.25)
+def splitMetroTrafficData(data, intensity=False):
+    return train_test_split(data.drop(columns=['traffic_volume', 'intensity']),
+                            data[['traffic_volume']] if not intensity else data[['intensity']],
+                            test_size=0.25)
 
 def getMetroTrafficData(dupsKeep='last',
                         gapsAction='fill',
