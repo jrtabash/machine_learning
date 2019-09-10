@@ -124,10 +124,21 @@ def updateMetroTrafficData(data, reindex=False, temp=None):
 
     return data
 
-def splitMetroTrafficData(data, intensity=False):
-    return train_test_split(data.drop(columns=['traffic_volume', 'intensity']),
-                            data[['traffic_volume']] if not intensity else data[['intensity']],
-                            test_size=0.25)
+def splitMetroTrafficData(data, intensity=False, approach='random'):
+    X = data.drop(columns=['traffic_volume', 'intensity'])
+    y = data[['traffic_volume']] if not intensity else data[['intensity']]
+    if approach == 'random':
+        return train_test_split(X, y, test_size=0.25)
+    elif approach == 'datetime':
+        # Assumes data is indexed by data_time
+        splitPoint = pd.Timestamp('2017-07-01 00:00:00')
+        X_learn = X[data.index < splitPoint]
+        X_test = X[data.index >= splitPoint]
+        y_learn = y[data.index < splitPoint]
+        y_test = y[data.index >= splitPoint]
+        return X_learn, X_test, y_learn, y_test
+    else:
+        raise(MetroTrafficException("Invalid split approach parameter '{}'".format(approach)))
 
 def getMetroTrafficData(dupsKeep='last',
                         gapsAction='fill',
