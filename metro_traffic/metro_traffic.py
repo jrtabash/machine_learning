@@ -7,6 +7,8 @@ import datetime_utils
 from datetime_utils import TimeStep
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 class MetroTrafficException(Exception):
     def __init__(self, message):
@@ -81,7 +83,7 @@ def cleanupMetroTrafficDups(data, keep):
         raise(MetroTrafficException("Invalid duplicates keep parameter '{}'".format(keep)))
     return data.drop_duplicates(keep=keep, subset=['date_time']).reset_index(drop=True)
 
-def cleanupMetroTrafficGaps(data, action):
+def cleanupMetroTrafficGaps(data, action, subAction=None):
     data.index = data.date_time
     data = data.drop(columns=['date_time'])
 
@@ -91,7 +93,7 @@ def cleanupMetroTrafficGaps(data, action):
     elif action == 'back_fill':
         data = data.bfill()
     elif action == 'interpolate':
-        data = data.interpolate()
+        data = data.interpolate(method=('linear' if subAction is None else subAction))
         data.holiday = np.round(data.holiday)
         data.weather_main = np.round(data.weather_main)
         data.weather_description = np.round(data.weather_description)
@@ -129,6 +131,7 @@ def splitMetroTrafficData(data, intensity=False):
 
 def getMetroTrafficData(dupsKeep='last',
                         gapsAction='fill',
+                        gapsSubAction=None,
                         dateTimeIndex=False,
                         temp=None):
     mt = readMetroTrafficCSV()
@@ -139,7 +142,7 @@ def getMetroTrafficData(dupsKeep='last',
         mt = cleanupMetroTrafficDups(mt, keep=dupsKeep)
 
     if gapsAction is not None:
-        mt = cleanupMetroTrafficGaps(mt, action=gapsAction)
+        mt = cleanupMetroTrafficGaps(mt, action=gapsAction, subAction=gapsSubAction)
 
     mt = updateMetroTrafficData(mt, reindex=dateTimeIndex, temp=temp)
 
