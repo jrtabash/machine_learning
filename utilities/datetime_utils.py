@@ -17,7 +17,7 @@ def calcDateTimeDiff(dateTime, step=TimeStep.Hour):
     if type(df) == pd.DataFrame:
         df = df[df.columns[0]]
     df.values[0] = step
-    df = pd.Series(df.values / step, dtype=float)
+    df = pd.Series(np.float64(df.values) / step, dtype=np.float64)
     return df
 
 def findDateTimeDuplicates(data, step, dateTimeColumn='date_time', calcPreceding=False, flatten=True):
