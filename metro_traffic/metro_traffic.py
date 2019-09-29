@@ -7,6 +7,9 @@ import datetime_utils
 from datetime_utils import TimeStep
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
 from matplotlib import pyplot as plt
 import seaborn as sns
 
@@ -158,3 +161,32 @@ def getMetroTrafficData(dupsKeep='last',
     mt = updateMetroTrafficData(mt, reindex=dateTimeIndex, temp=temp)
 
     return mt
+
+def findBestRandomForestParams(XData, yData,
+                               n_estimators=[150, 160, 170, 180, 190, 200],
+                               max_features=[2, 3, 4],
+                               min_samples_split=[2, 3]):
+    gscv = GridSearchCV(estimator=RandomForestClassifier(max_depth=None),
+                        param_grid={
+                            "n_estimators": n_estimators,
+                            "max_features": max_features,
+                            "min_samples_split": min_samples_split
+                        },
+                        cv=5,
+                        verbose=True,
+                        n_jobs=-1)
+    gridResult = gscv.fit(XData.values, yData.values.ravel())
+    print(gridResult.best_params_)
+
+def makeRandomForestModel(XData, yData, n_estimators=10, max_features=3, max_depth=None, min_samples_split=2):
+    model = RandomForestClassifier(n_estimators=n_estimators,
+                                   max_features=max_features,
+                                   max_depth=max_depth,
+                                   min_samples_split=min_samples_split)
+    model.fit(XData.values, yData.values.ravel())
+    return model
+
+def testRandomForestModel(model, XData, yData, cv=5):
+    scores = cross_val_score(model, XData.values, yData.values.ravel(), cv=cv)
+    print(" Scores: {}".format(scores))
+    print("Average: {}".format(np.average(scores)))
