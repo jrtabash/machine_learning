@@ -2,7 +2,11 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-plt.style.use('dark_background')
+def switchToDarkBackground():
+    plt.style.use('dark_background')
+
+def switchToDefaultBackground():
+    plt.style.use('default')
 
 def plotCorrelation(data):
     pd.plotting.scatter_matrix(data)
