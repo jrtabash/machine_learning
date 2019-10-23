@@ -6,10 +6,14 @@ import misc_utils
 import datetime_utils
 from datetime_utils import TimeStep
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
+import tensorflow as tf
 from matplotlib import pyplot as plt
 import seaborn as sns
 
@@ -190,3 +194,16 @@ def testRandomForestModel(model, XData, yData, cv=5):
     scores = cross_val_score(model, XData.values, yData.values.ravel(), cv=cv)
     print(" Scores: {}".format(scores))
     print("Average: {}".format(np.average(scores)))
+
+def makeNeuralNetworkModel(XData, yData,
+                           layers=[(9, 'relu'), (5, 'softmax')],
+                           optimizer='adam',
+                           loss='sparse_categorical_crossentropy',
+                           metrics=['accuracy'],
+                           epochs=10):
+    model = tf.keras.models.Sequential()
+    for sizeAndActiv in layers:
+        model.add(tf.keras.layers.Dense(sizeAndActiv[0], activation=sizeAndActiv[1]))
+    model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+    model.fit(XData.values, yData.values.ravel(), epochs=epochs)
+    return model
