@@ -208,15 +208,15 @@ def makeNeuralNetworkModel(XData, yData,
     model.fit(XData.values, yData.values.ravel(), epochs=epochs)
     return model
 
-def getDataForNeuralNetworkModel():
+def getDataForNeuralNetworkModel(standardScaler=True):
     mt = getMetroTrafficData(dupsKeep='last', gapsAction=None, gapsSubAction=None, dateTimeIndex=False, temp='F').reset_index(drop=True)
     xl, xt, yl, yt = splitMetroTrafficData(mt, intensity=True, approach='random')
     xl = xl.drop(columns=['date_time'])
     xt = xt.drop(columns=['date_time'])
 
-    scale = MinMaxScaler()
-    xl_norm = pd.DataFrame(scale.fit_transform(xl), columns=xl.columns)
-    xt_norm = pd.DataFrame(scale.transform(xt), columns=xt.columns)
+    scaler = StandardScaler() if standardScaler else MinMaxScaler()
+    xl_norm = pd.DataFrame(scaler.fit_transform(xl), columns=xl.columns)
+    xt_norm = pd.DataFrame(scaler.transform(xt), columns=xt.columns)
     yl_norm = yl - 1
     yt_norm = yt - 1
 
