@@ -21,10 +21,6 @@ class MetroTrafficException(Exception):
     def __init__(self, message):
         self.message = message
 
-holidayEncoder = LabelEncoder()
-weatherEncoder = LabelEncoder()
-descriptionEncoder = LabelEncoder()
-
 weekdayMap = dict({1: 'Monday',
                    2: 'Tuesday',
                    3: 'Wednesday',
@@ -37,15 +33,6 @@ intensityMap = dict({1: 'Very Low',
                      3: 'Medium',
                      4: 'High',
                      5: 'Very High'})
-
-def holidayLabel(encoding):
-    return holidayEncoder.classes_[encoding]
-
-def weatherLabel(encoding):
-    return weatherEncoder.classes_[encoding]
-
-def descriptionLabel(encoding):
-    return descriptionEncoder.classes_[encoding]
 
 def weekdayLabel(wkdy):
     return weekdayMap[wkdy]
@@ -75,15 +62,6 @@ def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt.weather_description = mt.weather_description.astype('category')
 
     return mt
-
-def encodeMetroDataCategories(data):
-    holidayEncoder.fit(np.unique(data.holiday))
-    weatherEncoder.fit(np.unique(data.weather_main))
-    descriptionEncoder.fit(np.unique(data.weather_description))
-
-    data.holiday = holidayEncoder.transform(data.holiday)
-    data.weather_main = weatherEncoder.transform(data.weather_main)
-    data.weather_description = descriptionEncoder.transform(data.weather_description)
 
 def cleanupMetroTrafficDups(data, keep):
     if keep != 'first' and keep != 'last':
@@ -154,7 +132,9 @@ def getMetroTrafficData(dupsKeep='last',
                         temp=None):
     mt = readMetroTrafficCSV()
 
-    encodeMetroDataCategories(mt)
+    encoder = data_utils.DataEncoder(['holiday', 'weather_main', 'weather_description'],
+                                     oneHotEncoding=False)
+    mt = encoder.encode(mt)
 
     if dupsKeep is not None:
         mt = cleanupMetroTrafficDups(mt, keep=dupsKeep)

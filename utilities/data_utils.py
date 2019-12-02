@@ -4,7 +4,36 @@ import misc_utils
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
 from sklearn.pipeline import Pipeline
+
+class DataEncoder:
+    def __init__(self, columns, oneHotEncoding=False):
+        self.columns = columns
+        self.oneHotEncoding = oneHotEncoding
+        self.labelEncoders = dict()
+
+    def getColumns():
+        return self.columns
+
+    def isOneHotEncoding():
+        return self.oneHotEncoding
+
+    def getLabel(columnName, encoding):
+        if not self.oneHotEncoding:
+            if columnName in labelEncoders:
+                return labelEncoders[columnName].classes_[encoding]
+        return ""
+
+    def encode(self, data):
+        if self.oneHotEncoding:
+            return pd.get_dummies(data, columns=self.columns)
+        else:
+            cpy = data.copy()
+            for col in self.columns:
+                self.labelEncoders[col] = LabelEncoder().fit(np.unique(cpy[col]))
+                cpy[col] = self.labelEncoders[col].transform(cpy[col])
+            return cpy
 
 def createPipeline(data, scale="minmax", components=None):
     steps = []
