@@ -29,7 +29,9 @@ The Dow Jones Index data is available from the UC Irvine Machine Learning Reposi
 
 ## Metro Traffic
 
-WIP ...
+Applying data cleaning techniques, data analysis, random forests, and Neural Networks to predict traffic volume intensity.
+
+Using hourly Minneapolis-St Paul, MN traffic volume for westbound I-94 from 2012 until 2018. Data includes weather and holiday features.
 
 The Metro Interstate Traffic Volume data is available from the UC Irvine Machine Learning Repository at the following link:
   https://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume
