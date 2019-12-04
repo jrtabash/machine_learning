@@ -63,6 +63,21 @@ def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
 
     return mt
 
+def plotTrafficVolume(mt, squashHoliday=False):
+    # Plot traffic volume by holiday and weather.
+    # Expected mt input is result of readMetroTrafficCSV.
+
+    data = mt
+    if squashHoliday:
+        data = mt[['holiday', 'weather_main', 'traffic_volume']].copy()
+        data.holiday = np.vectorize(lambda h: 'None' if h == 'None' else 'Holiday')(data.holiday)
+    sns.barplot(x='weather_main', y='traffic_volume', hue='holiday', data=data)
+    plt.grid(True)
+    plt.title("Traffic Volume by Holiday / Weather")
+    plt.xlabel("Weather")
+    plt.ylabel("Traffic Volume")
+    plt.show()
+
 def cleanupMetroTrafficDups(data, keep):
     if keep != 'first' and keep != 'last':
         raise(MetroTrafficException("Invalid duplicates keep parameter '{}'".format(keep)))
