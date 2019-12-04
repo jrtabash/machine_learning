@@ -205,3 +205,12 @@ def getDataForNeuralNetworkModel(standardScaler=True):
 
     xl, xt, yl, yt = splitMetroTrafficData(mt, intensity=True, approach='random')
     return xl, xt, yl - 1, yt - 1
+
+def nnPredictionLabel(prediction):
+    return intensityLabel(prediction + 1)
+
+def nnPredict(model, data):
+    return [np.argmax(p) for p in model.predict(misc_utils.toNPArray(data))]
+
+def nnPredictLabels(model, data):
+    return [nnPredictionLabel(p) for p in nnPredict(model, data)]

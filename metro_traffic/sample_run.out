@@ -49,3 +49,14 @@ In [8]: model.evaluate(xt.values, yt.values.ravel())
 Out[8]: [0.5641434522645331, 0.81979495]
 
 In [9]: 
+
+In [125]: nnPredict(model, xt.values[:1])
+Out[125]: [3]
+
+In [126]: nnPredictLabels(model, xt.values[:1])
+Out[126]: ['High']
+
+In [127]: nnPredictionLabel(yt.values.ravel()[0])
+Out[127]: 'High'
+
+In [128]: 
