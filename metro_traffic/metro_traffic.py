@@ -176,7 +176,7 @@ def testRandomForestModel(model, XData, yData, cv=5):
     print("Average: {}".format(np.average(scores)))
 
 def makeNeuralNetworkModel(XData, yData,
-                           layers=[(9, 'relu'), (5, 'softmax')],
+                           layers=[(27, 'relu'), (5, 'softmax')],
                            optimizer='adam',
                            loss='sparse_categorical_crossentropy',
                            metrics=['accuracy'],
@@ -189,15 +189,19 @@ def makeNeuralNetworkModel(XData, yData,
     return model
 
 def getDataForNeuralNetworkModel(standardScaler=True):
-    mt = getMetroTrafficData(dupsKeep='last', gapsAction=None, gapsSubAction=None, dateTimeIndex=False, temp='F').reset_index(drop=True)
-    xl, xt, yl, yt = splitMetroTrafficData(mt, intensity=True, approach='random')
-    xl = xl.drop(columns=['date_time'])
-    xt = xt.drop(columns=['date_time'])
+    mt = readMetroTrafficCSV()
+
+    encoder = data_utils.DataEncoder(['holiday', 'weather_main'], oneHotEncoding=True)
+    mt = encoder.encode(mt)
+
+    mt = cleanupMetroTrafficDups(mt, keep='last')
+    mt = updateMetroTrafficData(mt, reindex=False, temp='F')
+    mt = mt.drop(columns=['date_time', 'rain_1h', 'snow_1h', 'weather_description'])
 
     scaler = StandardScaler() if standardScaler else MinMaxScaler()
-    xl_norm = pd.DataFrame(scaler.fit_transform(xl), columns=xl.columns)
-    xt_norm = pd.DataFrame(scaler.transform(xt), columns=xt.columns)
-    yl_norm = yl - 1
-    yt_norm = yt - 1
+    scaleColumns = ['week_day', 'hour', 'temp', 'clouds_all']
+    scaler.fit(mt[scaleColumns])
+    mt[scaleColumns] = scaler.transform(mt[scaleColumns])
 
-    return xl_norm, xt_norm, yl_norm, yt_norm
+    xl, xt, yl, yt = splitMetroTrafficData(mt, intensity=True, approach='random')
+    return xl, xt, yl - 1, yt - 1
