@@ -203,15 +203,25 @@ def makeNeuralNetworkModel(XData, yData,
     model.fit(XData.values, yData.values.ravel(), epochs=epochs)
     return model
 
-def getDataForNeuralNetworkModel(standardScaler=True):
+def getDataForNeuralNetworkModel(standardScaler=True, squashHoliday=False, dropDescription=True):
     mt = readMetroTrafficCSV()
 
-    encoder = data_utils.DataEncoder(['holiday', 'weather_main'], oneHotEncoding=True)
+    if squashHoliday:
+        mt.holiday = np.vectorize(lambda h: 'None' if h == 'None' else 'Holiday')(mt.holiday)
+
+    columnsToEncode = ['holiday', 'weather_main']
+    if not dropDescription:
+        columnsToEncode.append('weather_description')
+    encoder = data_utils.DataEncoder(columnsToEncode, oneHotEncoding=True)
     mt = encoder.encode(mt)
 
     mt = cleanupMetroTrafficDups(mt, keep='last')
     mt = updateMetroTrafficData(mt, reindex=False, temp='F')
-    mt = mt.drop(columns=['date_time', 'rain_1h', 'snow_1h', 'weather_description'])
+
+    columnsToDrop = ['date_time', 'rain_1h', 'snow_1h']
+    if dropDescription:
+        columnsToDrop.append('weather_description')
+    mt = mt.drop(columns=columnsToDrop)
 
     scaler = StandardScaler() if standardScaler else MinMaxScaler()
     scaleColumns = ['week_day', 'hour', 'temp', 'clouds_all']
