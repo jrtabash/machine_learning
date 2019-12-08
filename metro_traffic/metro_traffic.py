@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
 import tensorflow as tf
 from matplotlib import pyplot as plt
 import seaborn as sns
@@ -191,14 +192,15 @@ def testRandomForestModel(model, XData, yData, cv=5):
     print("Average: {}".format(np.average(scores)))
 
 def makeNeuralNetworkModel(XData, yData,
-                           layers=[(27, 'relu'), (5, 'softmax')],
+                           layers=[(27, 'relu', ''), (5, 'softmax', '')],
                            optimizer='adam',
                            loss='sparse_categorical_crossentropy',
                            metrics=['accuracy'],
                            epochs=10):
     model = tf.keras.models.Sequential()
-    for sizeAndActiv in layers:
-        model.add(tf.keras.layers.Dense(sizeAndActiv[0], activation=sizeAndActiv[1]))
+    for sizeActivReg in layers:
+        regularizer = None if (len(sizeActivReg) == 2 or not sizeActivReg[2]) else sizeActivReg[2]
+        model.add(tf.keras.layers.Dense(sizeActivReg[0], activation=sizeActivReg[1], kernel_regularizer=regularizer))
     model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
     model.fit(XData.values, yData.values.ravel(), epochs=epochs)
     return model
@@ -239,3 +241,8 @@ def nnPredict(model, data):
 
 def nnPredictLabels(model, data):
     return [nnPredictionLabel(p) for p in nnPredict(model, data)]
+
+def nnConfusionMatrix(model, x, y):
+    cm = confusion_matrix(nnPredict(model, x.values), y.values.ravel())
+    labels = [nnPredictionLabel(lbl) for lbl in np.unique(y.values.ravel())]
+    plot_utils.plotConfusionMatrix(cm, cmap='Reds', labels=labels)

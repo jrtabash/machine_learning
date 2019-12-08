@@ -2,6 +2,9 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+class PlotUtilException(Exception):
+    pass
+
 def switchToDarkBackground():
     plt.style.use('dark_background')
 
@@ -49,4 +52,21 @@ def plotPredictVsActual(yPredict, yActual, overlay=False):
                 plt.title(titleText)
             plt.grid(axis="both")
             index += 1
+    plt.show()
+
+def plotConfusionMatrix(cm, cmap=None, labels=None):
+    if labels is not None:
+        if len(cm) != len(labels):
+            raise(PlotUtilException(
+                "plotConfusionMatrix: invalid labels length cm_len={} labels_len={}".format(
+                    len(cm),
+                    len(labels))))
+
+    ax = sns.heatmap(cm, annot=True, fmt=".2f", cbar=False, cmap=cmap)
+    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    if labels is not None:
+        ax.set_xticklabels(labels)
+        ax.set_yticklabels(labels)
     plt.show()
