@@ -243,6 +243,6 @@ def nnPredictLabels(model, data):
     return [nnPredictionLabel(p) for p in nnPredict(model, data)]
 
 def nnConfusionMatrix(model, x, y):
-    cm = confusion_matrix(nnPredict(model, x.values), y.values.ravel())
+    cm = confusion_matrix(y.values.ravel(), nnPredict(model, x.values))
     labels = [nnPredictionLabel(lbl) for lbl in np.unique(y.values.ravel())]
     plot_utils.plotConfusionMatrix(cm, cmap='Reds', labels=labels)
