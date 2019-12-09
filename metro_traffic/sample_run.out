@@ -1,60 +1,67 @@
-In [5]: %run machine_learning/metro_traffic/metro_traffic.py
+In [6]: %run machine_learning/metro_traffic/metro_traffic.py
 
-xl, xt, yl, yt = getDataForNeuralNetworkModel(standardScaler=True, squashHoliday=False, dropDescription=True)
+In [7]: xl, xt, yl, yt = getDataForNeuralNetworkModel(standardScaler=True, squashHoliday=False, dropDescription=True)
 
-In [109]: model = makeNeuralNetworkModel(xl, yl, epochs=20, layers=[(27, 'relu'), (10, 'sigmoid'), (5, 'softmax')])
+In [8]: len(xl.columns
+Out[8]: 27
+
+In [9]: model = makeNeuralNetworkModel(xl, yl, epochs=20, layers=[(27, 'relu'), (10, 'sigmoid'), (3, 'softmax')])
 Epoch 1/20
-30431/30431 [==============================] - 1s 38us/sample - loss: 1.3697 - acc: 0.4032
+30431/30431 [==============================] - 1s 25us/sample - loss: 0.7977 - acc: 0.6504
 Epoch 2/20
-30431/30431 [==============================] - 1s 33us/sample - loss: 1.0210 - acc: 0.5686
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.5474 - acc: 0.7114
 Epoch 3/20
-30431/30431 [==============================] - 1s 34us/sample - loss: 0.8454 - acc: 0.6190
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.4558 - acc: 0.7752
 Epoch 4/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.7655 - acc: 0.6629
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.4162 - acc: 0.8109
 Epoch 5/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.7180 - acc: 0.6950
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.3861 - acc: 0.8368
 Epoch 6/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.6815 - acc: 0.7249
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.3569 - acc: 0.8643
 Epoch 7/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.6451 - acc: 0.7583
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.3318 - acc: 0.8858
 Epoch 8/20
-30431/30431 [==============================] - 1s 36us/sample - loss: 0.6077 - acc: 0.7850
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.3126 - acc: 0.8956
 Epoch 9/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.5738 - acc: 0.8161
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.3000 - acc: 0.8981
 Epoch 10/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.5455 - acc: 0.8332
+30431/30431 [==============================] - 1s 23us/sample - loss: 0.2906 - acc: 0.8992
 Epoch 11/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.5211 - acc: 0.8423
+30431/30431 [==============================] - 1s 26us/sample - loss: 0.2847 - acc: 0.8986
 Epoch 12/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.5026 - acc: 0.8452
+30431/30431 [==============================] - 1s 25us/sample - loss: 0.2799 - acc: 0.9010
 Epoch 13/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4876 - acc: 0.8475
+30431/30431 [==============================] - 1s 26us/sample - loss: 0.2755 - acc: 0.8995
 Epoch 14/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4758 - acc: 0.8493
+30431/30431 [==============================] - 1s 26us/sample - loss: 0.2728 - acc: 0.9015
 Epoch 15/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4669 - acc: 0.8512
+30431/30431 [==============================] - 1s 26us/sample - loss: 0.2700 - acc: 0.9017
 Epoch 16/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4591 - acc: 0.8492
+30431/30431 [==============================] - 1s 25us/sample - loss: 0.2681 - acc: 0.9013
 Epoch 17/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4540 - acc: 0.8519
+30431/30431 [==============================] - 1s 25us/sample - loss: 0.2656 - acc: 0.9030
 Epoch 18/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4494 - acc: 0.8514
+30431/30431 [==============================] - 1s 26us/sample - loss: 0.2639 - acc: 0.9035
 Epoch 19/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4453 - acc: 0.8531
+30431/30431 [==============================] - 1s 26us/sample - loss: 0.2626 - acc: 0.9024
 Epoch 20/20
-30431/30431 [==============================] - 1s 37us/sample - loss: 0.4422 - acc: 0.8532
+30431/30431 [==============================] - 1s 25us/sample - loss: 0.2605 - acc: 0.9050
 
-In [110]: model.evaluate(xt.values, yt.values.ravel())
-10144/10144 [==============================] - 0s 40us/sample - loss: 0.4476 - acc: 0.8496
-Out[110]: [0.4476096204684736, 0.8495662]
+In [10]: model.evaluate(xt.values, yt.values.ravel())
+10144/10144 [==============================] - 0s 40us/sample - loss: 0.2572 - acc: 0.9006
+Out[10]: [0.25724316641030254, 0.9006309]
 
-In [111]: nnPredict(model, xt.values[:1])
-Out[111]: [3]
+In [11]: precision_score(yt.values.ravel(), nnPredict(model, xt.values), average=None)
+Out[11]: array([0.96885466, 0.88167203, 0.8543923 ])
 
-In [112]: nnPredictLabels(model, xt.values[:1])
-Out[112]: ['High']
+In [12]: recall_score(yt.values.ravel(), nnPredict(model, xt.values), average=None)
+Out[12]: array([0.92339611, 0.90336042, 0.86655818])
 
-In [113]: nnPredictionLabel(yt.values.ravel()[0])
-Out[113]: 'High'
+In [13]: nnPredict(model, xt.values[:1])
+Out[13]: [0]
 
-In [114]:
+In [14]: nnPredictLabels(model, xt.values[:1])
+Out[14]: ['Low']
+
+In [15]: nnPredictionLabel(yt.values.ravel()[0])
+Out[15]: 'Low'

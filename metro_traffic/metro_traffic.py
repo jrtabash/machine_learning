@@ -14,6 +14,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 import tensorflow as tf
 from matplotlib import pyplot as plt
 import seaborn as sns
@@ -29,11 +31,9 @@ weekdayMap = dict({1: 'Monday',
                    5: 'Friday',
                    6: 'Saturday',
                    7: 'Sunday'})
-intensityMap = dict({1: 'Very Low',
-                     2: 'Low',
-                     3: 'Medium',
-                     4: 'High',
-                     5: 'Very High'})
+intensityMap = dict({1: 'Low',
+                     2: 'Medium',
+                     3: 'High'})
 
 def weekdayLabel(wkdy):
     return weekdayMap[wkdy]
@@ -42,16 +42,12 @@ def intensityLabel(intsty):
     return intensityMap[intsty]
 
 def volumeToIntensity(volume):
-    if volume < 500:    # Very Low
+    if volume < 2000:   # Low
         return 1
-    elif volume < 2000: # Low
+    elif volume < 5000: # Medium
         return 2
-    elif volume < 3500: # Medium
+    else:               # High
         return 3
-    elif volume < 5000: # High
-        return 4
-    else:               # Very High
-        return 5
 
 def readMetroTrafficCSV(path="~/Data/MetroInterstateTrafficVolume/"):
     mt = pd.read_csv(path + "Metro_Interstate_Traffic_Volume.csv")
