@@ -2,7 +2,7 @@ In [6]: %run machine_learning/metro_traffic/metro_traffic.py
 
 In [7]: xl, xt, yl, yt = getDataForNeuralNetworkModel(standardScaler=True, squashHoliday=False, dropDescription=True)
 
-In [8]: len(xl.columns
+In [8]: len(xl.columns)
 Out[8]: 27
 
 In [9]: model = makeNeuralNetworkModel(xl, yl, epochs=20, layers=[(27, 'relu'), (10, 'sigmoid'), (3, 'softmax')])
