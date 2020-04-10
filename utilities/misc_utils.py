@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from sklearn.metrics import make_scorer
 
 class MiscUtilException(Exception):
@@ -31,14 +30,14 @@ def profitScore(yActual, yPredict, calcSign=True):
     actualValues = np.asarray(yActual).flatten()
 
     if len(predictValues) != len(actualValues):
-        raise(MiscUtilException("profitScore: yPredict and yActual must have same length"))
+        raise MiscUtilException("profitScore: yPredict and yActual must have same length")
 
-    for i in range(len(predictValues)):
+    for pValue, aValue in zip(predictValues, actualValues):
         # This assumes predict amounts are percent change amounts
         # Example: 2.75 => 2.75% => 2.75 / 100.0
         #          So, amount => amount + (amount * 2.75 / 100.0)
-        predictAmount += (predictValues[i] * predictAmount / 100.0)
-        actualAmount += (actualValues[i] * actualAmount / 100.0)
+        predictAmount += (pValue * predictAmount / 100.0)
+        actualAmount += (aValue * actualAmount / 100.0)
 
     predictChange = predictAmount - initialAmount
     actualChange = actualAmount - initialAmount
