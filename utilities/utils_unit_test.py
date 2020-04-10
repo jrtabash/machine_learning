@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
+import pandas as pd
 import misc_utils
+import data_utils
 
 def fequal(lhs, rhs):
     return abs(lhs - rhs) <= 0.0000001
@@ -88,6 +90,45 @@ class TestMiscUtils(unittest.TestCase):
                                np.array([(-6, -5), (-1, 0), (9, 10)])))
         self.assertTrue(aequal(misc_utils.makePrecedingPairs(values, flatten=True),
                                np.array([-6, -5, -1, 0, 9, 10])))
+
+class TestDataUtils(unittest.TestCase):
+    def testDataEncoder(self):
+        df = pd.DataFrame({'A': ['11', '11', '22'], 'B': ['33', '44', '55']})
+        de = data_utils.DataEncoder(['A', 'B'])
+        self.assertEqual(de.getColumns(), ['A', 'B'])
+        self.assertFalse(de.isOneHotEncoding())
+
+        adf = de.encode(df)
+        edf = pd.DataFrame({'A': [0, 0, 1], 'B': [0, 1, 2]})
+        self.assertTrue(aequal(adf.values, edf.values))
+
+        self.assertEqual(de.getLabel('A', 0), '11')
+        self.assertEqual(de.getLabel('A', 1), '22')
+        self.assertEqual(de.getLabel('B', 0), '33')
+        self.assertEqual(de.getLabel('B', 1), '44')
+        self.assertEqual(de.getLabel('B', 2), '55')
+        self.assertEqual(de.getLabel('C', 0), '')
+
+    def testDataEncoderOneHotEncoding(self):
+        df = pd.DataFrame({'A': ['11', '11', '22'], 'B': ['33', '44', '55']})
+        de = data_utils.DataEncoder(['A', 'B'], oneHotEncoding=True)
+        self.assertEqual(de.getColumns(), ['A', 'B'])
+        self.assertTrue(de.isOneHotEncoding())
+
+        adf = de.encode(df)
+        edf = pd.DataFrame(
+            {'A_11': [1, 1, 0],
+             'A_22': [0, 0, 1],
+             'B_33': [1, 0, 0],
+             'B_44': [0, 1, 0],
+             'B_55': [0, 0, 1]})
+        self.assertTrue(aequal(adf.values, edf.values))
+
+        self.assertEqual(de.getLabel('A', 0), '')
+        self.assertEqual(de.getLabel('A', 1), '')
+        self.assertEqual(de.getLabel('B', 0), '')
+        self.assertEqual(de.getLabel('B', 1), '')
+        self.assertEqual(de.getLabel('C', 0), '')
 
 if __name__ == "__main__":
     unittest.main()
