@@ -3,8 +3,6 @@ import pandas as pd
 import plot_utils
 import data_utils
 import misc_utils
-import datetime_utils
-from datetime_utils import TimeStep
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
