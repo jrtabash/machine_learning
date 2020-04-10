@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import misc_utils
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
@@ -58,15 +57,6 @@ def preprocessData(pipeline, trainingData, testData, copyColumns=False):
     testData2 = pd.DataFrame(pipeline.transform(testData), columns=newColumns)
     return trainingData2, testData2
 
-def floatRange(begin, end, step=1.0):
-    values = []
-    if begin <= end:
-        cur = begin
-        while cur < end:
-            values.append(cur)
-            cur = cur + step
-    return values
-
 def makeSegColAggFtn(ftn, col, nRows):
     return lambda seg: np.array([ftn([seg[row][col] for row in range(nRows)])])
 
@@ -87,9 +77,3 @@ def makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=None):
             segment = segment.flatten()
         segments.append(segment)
     return np.array(segments)
-
-def insertRows(data, index, rows):
-    preData = data.iloc[:index, :]
-    newData = pd.DataFrame(rows, columns=data.columns)
-    postData = data.iloc[index:, :]
-    return preData.append(newData).append(postData).reset_index(drop=True)
