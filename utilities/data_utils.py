@@ -77,7 +77,7 @@ def makeSegSelectFtn(colBegin, colEnd, rowBegin, rowEnd):
     return lambda seg: np.array([seg[r][colBegin:colEnd] for r in range(rowBegin, rowEnd)])
 
 def makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=None):
-    values = misc_utils.toNPArray(data)
+    values = np.asarray(data)
     segments = []
     for segIdx in range(0, len(values) - segmentLength + 1, segmentOffset):
         segment = np.copy(values[segIdx:(segIdx + segmentLength)])

@@ -5,17 +5,6 @@ from sklearn.metrics import make_scorer
 class MiscUtilException(Exception):
     pass
 
-def toNPArray(data):
-    dataType = type(data)
-    if dataType == np.ndarray:
-        return data
-    elif dataType == pd.DataFrame:
-        return data.values
-    elif dataType == list:
-        return np.array(data)
-
-    raise(MiscUtilException("toNPArray: Unsupported data type '{}'".format(dataType)))
-
 def profitScore(yActual, yPredict, calcSign=True):
     """ Calculates a profit score of predicted relative to actual.
 
@@ -38,8 +27,8 @@ def profitScore(yActual, yPredict, calcSign=True):
     predictAmount = initialAmount
     actualAmount = initialAmount
 
-    predictValues = toNPArray(yPredict).flatten()
-    actualValues = toNPArray(yActual).flatten()
+    predictValues = np.asarray(yPredict).flatten()
+    actualValues = np.asarray(yActual).flatten()
 
     if len(predictValues) != len(actualValues):
         raise(MiscUtilException("profitScore: yPredict and yActual must have same length"))
