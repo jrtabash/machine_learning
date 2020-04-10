@@ -12,27 +12,27 @@ class DataEncoder:
         self.oneHotEncoding = oneHotEncoding
         self.labelEncoders = dict()
 
-    def getColumns():
+    def getColumns(self):
         return self.columns
 
-    def isOneHotEncoding():
+    def isOneHotEncoding(self):
         return self.oneHotEncoding
 
-    def getLabel(columnName, encoding):
+    def getLabel(self, columnName, encoding):
         if not self.oneHotEncoding:
-            if columnName in labelEncoders:
-                return labelEncoders[columnName].classes_[encoding]
+            if columnName in self.labelEncoders:
+                return self.labelEncoders[columnName].classes_[encoding]
         return ""
 
     def encode(self, data):
         if self.oneHotEncoding:
             return pd.get_dummies(data, columns=self.columns)
-        else:
-            cpy = data.copy()
-            for col in self.columns:
-                self.labelEncoders[col] = LabelEncoder().fit(np.unique(cpy[col]))
-                cpy[col] = self.labelEncoders[col].transform(cpy[col])
-            return cpy
+
+        cpy = data.copy()
+        for col in self.columns:
+            self.labelEncoders[col] = LabelEncoder().fit(np.unique(cpy[col]))
+            cpy[col] = self.labelEncoders[col].transform(cpy[col])
+        return cpy
 
 def createPipeline(data, scale="minmax", components=None):
     steps = []
@@ -61,7 +61,8 @@ def makeSegColAggFtn(ftn, col, nRows):
     return lambda seg: np.array([ftn([seg[row][col] for row in range(nRows)])])
 
 def makeSegRowAggFtn(ftn, nCols, nRows):
-    return lambda seg: np.array([ftn([seg[row][col] for row in range(nRows)]) for col in range(nCols)])
+    return lambda seg: np.array(
+        [ftn([seg[row][col] for row in range(nRows)]) for col in range(nCols)])
 
 def makeSegSelectFtn(colBegin, colEnd, rowBegin, rowEnd):
     return lambda seg: np.array([seg[r][colBegin:colEnd] for r in range(rowBegin, rowEnd)])
