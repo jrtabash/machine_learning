@@ -10,7 +10,8 @@ def readData(csvFile=DefaultCSV):
                        names=['system_code', 'capacity', 'occupancy', 'update_time'],)
 
 def cleanupData(data):
-    return data[(data.occupancy > 0) & (data.occupancy <= data.capacity)].reset_index(drop=True)
+    data.occupancy = np.vectorize(lambda x, y: min(x, y))(data.occupancy, data.capacity)
+    return data[data.occupancy > 0].reset_index(drop=True)
 
 def reindexData(data):
     data.sort_values(by=['update_time'], inplace=True)
@@ -26,7 +27,8 @@ def addFeatures(data):
     getMaxOccupancy = np.vectorize(lambda c: maxOccupancy[c:c].values[0][0])
 
     data['rate'] = data.occupancy / np.float64(data.capacity)
-    data['indicator'] = data.occupancy / getMaxOccupancy(data.system_code)
+    data['hrate'] = data.occupancy / getMaxOccupancy(data.system_code)
+    data['weekday'] = np.vectorize(lambda x: x.isoweekday())(data.reset_index(drop=False).update_time.dt.date)
 
     return data
 
