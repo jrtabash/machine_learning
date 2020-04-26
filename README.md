@@ -35,3 +35,12 @@ Using hourly Minneapolis-St Paul, MN traffic volume for westbound I-94 from 2012
 
 The Metro Interstate Traffic Volume data is available from the UC Irvine Machine Learning Repository at the following link:
   https://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume
+
+## Car Parking
+
+WIP
+
+Using car parking data collected in Birmingham UK from October 4, 2016 until December 19, 2016.
+
+The parking Birmingham data is available from the UC Irvine Machine Learning Repository at the following link:
+  https://archive.ics.uci.edu/ml/datasets/Parking+Birmingham
