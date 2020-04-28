@@ -10,7 +10,7 @@ def readData(csvFile=DefaultCSV):
                        names=['system_code', 'capacity', 'occupancy', 'update_time'],)
 
 def cleanupData(data):
-    data.occupancy = np.vectorize(lambda x, y: min(x, y))(data.occupancy, data.capacity)
+    data.occupancy = np.vectorize(min)(data.occupancy, data.capacity)
     return data[data.occupancy > 0].reset_index(drop=True)
 
 def reindexData(data):
