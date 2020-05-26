@@ -76,9 +76,10 @@ def makePipeline(data, scaler=None, pca=None, clusters=None):
 
     return pipeline
 
-def plotKMeansInertia(data, ns=range(1, 10)):
-    inertias = [KMeans(n_clusters=n).fit(data).inertia_ for n in ns]
+def evalKMeansInertia(ns, data):
+    return [KMeans(n_clusters=n).fit(data).inertia_ for n in ns]
 
+def plotKMeansInertia(ns, inertias):
     plt.plot(ns, inertias, '-o')
     plt.title('KMeans Inertia')
     plt.xlabel('clusters')
