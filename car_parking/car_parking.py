@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 DefaultCSV = '~/Data/ParkingBirmingham/parking_birmingham.csv'
@@ -61,28 +61,47 @@ def getData(csvFile=DefaultCSV, reindex=True, cleanup=True, rateFeatures=True, t
         data.drop(columns=columnsToDrop, inplace=True)
     return data
 
-def makePipeline(data, scaler=None, pca=None, clusters=None):
-    pipeline=None
-    steps = []
-    if scaler:
-        steps.append(('scaler', StandardScaler() if scaler == 'std' else MinMaxScaler()))
-    if pca:
-        steps.append(('pca', PCA(n_components=pca)))
-    if clusters:
-        steps.append(('kmeans', KMeans(n_clusters=clusters)))
-
-    if len(steps) > 0:
-        pipeline = Pipeline(steps).fit(data)
-
-    return pipeline
-
 def evalKMeansInertia(ns, data):
     return [KMeans(n_clusters=n).fit(data).inertia_ for n in ns]
 
-def plotKMeansInertia(ns, inertias):
-    plt.plot(ns, inertias, '-o')
+def findBestInertia(ns, inertias, relativeThreshold=0.1, verbose=False):
+    def relChange(fromIdx, toIdx):
+        return np.abs(inertias[toIdx] - inertias[fromIdx]) / inertias[fromIdx]
+
+    relChgs = np.array([relChange(i - 1, i) for i in range(1, len(inertias))])
+    relDffs = np.abs(np.diff(relChgs))
+
+    relIdx = len(relDffs) - 1
+    for i in range(0, relIdx - 1):
+        if relDffs[i] <= relativeThreshold:
+            relIdx = i
+            break
+
+    ret = (ns[relIdx], inertias[relIdx])
+
+    if verbose:
+        print("findBestInertia: ns={}".format(ns))
+        print("               : inertias={}".format(inertias))
+        print("               : relChgs={}".format(relChgs))
+        print("               : relDffs={}".format(relDffs))
+        print("               : relIdx={}".format(relIdx))
+        print("               : ret={}".format(ret))
+
+    return ret
+
+def plotKMeansInertia(ns, inertias, markBest=False):
+    plt.plot(ns, inertias, '-o', label='Inertia')
+
+    if markBest:
+        bn, bi = findBestInertia(ns, inertias)
+        plt.plot(bn, bi, color='r', marker='o', label='Best')
+
     plt.title('KMeans Inertia')
     plt.xlabel('clusters')
     plt.ylabel('Inertia')
     plt.grid(True)
+
+    if markBest:
+        plt.legend(loc='upper right')
+
     plt.show()
