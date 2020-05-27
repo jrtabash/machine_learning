@@ -53,8 +53,8 @@ def createPipeline(data, scale="minmax", components=None):
 
 def preprocessData(pipeline, trainingData, testData, copyColumns=False):
     newColumns = trainingData.columns if copyColumns else None
-    trainingData2 = pd.DataFrame(pipeline.transform(trainingData), columns=newColumns)
-    testData2 = pd.DataFrame(pipeline.transform(testData), columns=newColumns)
+    trainingData2 = pd.DataFrame(pipeline.transform(trainingData), columns=newColumns, index=trainingData.index)
+    testData2 = pd.DataFrame(pipeline.transform(testData), columns=newColumns, index=testData.index)
     return trainingData2, testData2
 
 def makeSegColAggFtn(ftn, col, nRows):
