@@ -33,21 +33,21 @@ def plotData(data, xName, yName):
 
 def plotPredictVsActual(yPredict, yActual, overlay=False):
     x = range(0, len(yActual))
-    yDataColorAndNameList = [(yPredict, "c", "Prediction"), (yActual, "r", "Actual")]
+    yDataAndNameList = [(yPredict, "Prediction"), (yActual, "Actual")]
     titleText = "Prediction vs. Actual"
 
     if overlay:
-        for yDataColorAndName in yDataColorAndNameList:
-            plt.plot(x, yDataColorAndName[0], yDataColorAndName[1], label=yDataColorAndName[2])
+        for yDataColorAndName in yDataAndNameList:
+            plt.plot(x, yDataColorAndName[0], label=yDataColorAndName[1])
         plt.title(titleText)
         plt.grid(axis="both")
         plt.legend()
     else:
         index = 1
-        for yDataColorAndName in yDataColorAndNameList:
+        for yDataColorAndName in yDataAndNameList:
             plt.subplot(2, 1, index)
-            plt.plot(x, yDataColorAndName[0], yDataColorAndName[1])
-            plt.ylabel(yDataColorAndName[2])
+            plt.plot(x, yDataColorAndName[0])
+            plt.ylabel(yDataColorAndName[1])
             if index == 1:
                 plt.title(titleText)
             plt.grid(axis="both")
