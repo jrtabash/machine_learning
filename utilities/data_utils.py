@@ -1,3 +1,4 @@
+from collections import defaultdict
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -33,6 +34,37 @@ class DataEncoder:
             self.labelEncoders[col] = LabelEncoder().fit(np.unique(cpy[col]))
             cpy[col] = self.labelEncoders[col].transform(cpy[col])
         return cpy
+
+class GroupMinMax:
+    def __init__(self, data, byColumn):
+        self.minMax = defaultdict(dict)
+        self.populateMinMax_(data, byColumn)
+
+    def __len__(self):
+        return len(self.minMax)
+
+    def __contains__(self, byValue):
+        return byValue in self.minMax
+
+    def getMin(self, byValue, column):
+        return self.minMax[byValue][column][0]
+
+    def getMax(self, byValue, column):
+        return self.minMax[byValue][column][1]
+
+    def populateMinMax_(self, data, byColumn):
+        mins = data.groupby(by=[byColumn]).min().reset_index(drop=False).sort_values(by=[byColumn])
+        maxs = data.groupby(by=[byColumn]).max().reset_index(drop=False).sort_values(by=[byColumn])
+
+        for i in range(len(mins)):
+            minRow = mins[i:i+1]
+            maxRow = maxs[i:i+1]
+            byValue = minRow[byColumn].values[0]
+            assert(byValue == maxRow[byColumn].values[0])
+            for column in data.columns:
+                if column == byColumn:
+                    continue
+                self.minMax[byValue][column] = (minRow[column].values[0], maxRow[column].values[0])
 
 def createPipeline(data, scale="minmax", components=None):
     steps = []

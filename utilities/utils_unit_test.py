@@ -130,5 +130,28 @@ class TestDataUtils(unittest.TestCase):
         self.assertEqual(de.getLabel('B', 1), '')
         self.assertEqual(de.getLabel('C', 0), '')
 
+    def testGroupMinMax(self):
+        df = pd.DataFrame({'grp':  ['A', 'B', 'A', 'C', 'A', 'B'],
+                           'col1': [  1,   2,   3,   4,   5,   6],
+                           'col2': [-10, -20,   0, -40,  50, -60]})
+        minMax = data_utils.GroupMinMax(df, 'grp')
+        self.assertEqual(len(minMax), 3)
+        self.assertTrue('A' in minMax)
+        self.assertTrue('B' in minMax)
+        self.assertTrue('C' in minMax)
+        self.assertFalse('D' in minMax)
+        self.assertEqual(minMax.getMin('A', 'col1'), 1)
+        self.assertEqual(minMax.getMax('A', 'col1'), 5)
+        self.assertEqual(minMax.getMin('A', 'col2'), -10)
+        self.assertEqual(minMax.getMax('A', 'col2'), 50)
+        self.assertEqual(minMax.getMin('B', 'col1'), 2)
+        self.assertEqual(minMax.getMax('B', 'col1'), 6)
+        self.assertEqual(minMax.getMin('B', 'col2'), -60)
+        self.assertEqual(minMax.getMax('B', 'col2'), -20)
+        self.assertEqual(minMax.getMin('C', 'col1'), 4)
+        self.assertEqual(minMax.getMax('C', 'col1'), 4)
+        self.assertEqual(minMax.getMin('C', 'col2'), -40)
+        self.assertEqual(minMax.getMax('C', 'col2'), -40)
+
 if __name__ == "__main__":
     unittest.main()
