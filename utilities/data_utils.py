@@ -66,6 +66,48 @@ class GroupMinMax:
                     continue
                 self.minMax[byValue][column] = (minRow[column].values[0], maxRow[column].values[0])
 
+class GroupMinMaxScaler:
+    def __init__(self, byColumn):
+        self.byColumn = byColumn
+        self.minMax = None
+
+    def fit(self, data):
+        self.minMax = GroupMinMax(data, self.byColumn)
+        return self
+
+    def transform(self, data):
+        return self.transform_data_(data, self.normalize_)
+
+    def inverse_transform(self, data):
+        return self.transform_data_(data, self.inverse_normalize_)
+
+    def fit_transform(self, data):
+        self.fit(data)
+        return self.transform(data)
+
+    def normalize_(self, value, vmin, vmax):
+        if vmax == vmin:
+            return 0.0
+        return (value - vmin) / (vmax - vmin)
+
+    def inverse_normalize_(self, value, vmin, vmax):
+        return value * (vmax - vmin) + vmin
+
+    def transform_data_(self, data, ftn):
+        outData = data.copy()
+        for row in range(len(data)):
+            for col in range(len(data.columns)):
+                column = data.columns[col]
+
+                if column == self.byColumn:
+                    continue
+
+                outData.iloc[row, col] = ftn(
+                    data.iloc[row, col],
+                    self.minMax.getMin(data[self.byColumn].values[row], column),
+                    self.minMax.getMax(data[self.byColumn].values[row], column))
+        return outData
+
 def createPipeline(data, scale="minmax", components=None):
     steps = []
     pipeline = None

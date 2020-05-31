@@ -153,5 +153,30 @@ class TestDataUtils(unittest.TestCase):
         self.assertEqual(minMax.getMin('C', 'col2'), -40)
         self.assertEqual(minMax.getMax('C', 'col2'), -40)
 
+    def testGroupMinMaxScaler(self):
+        df = pd.DataFrame({'grp':  ['A', 'B', 'A', 'C', 'A', 'B'],
+                           'col1': [  1,   2,   3,   4,   5,   6],
+                           'col2': [-10, -20,   0, -40,  10, -60]})
+        exp_df = pd.DataFrame({'grp':  ['A', 'B', 'A', 'C', 'A', 'B'],
+                               'col1': [0.0, 0.0, 0.5, 0.0, 1.0, 1.0],
+                               'col2': [0.0, 1.0, 0.5, 0.0, 1.0, 0.0]})
+        scaler = data_utils.GroupMinMaxScaler('grp')
+        scaler.fit(df)
+        act_df = scaler.transform(df)
+
+        expActEqual = np.all(act_df == exp_df)
+        if not expActEqual:
+            print('testGroupMinMaxScaler: transform')
+            print('Expected df:\n{}'.format(exp_df))
+            print('Actual df:\n{}'.format(act_df))
+        self.assertTrue(expActEqual)
+
+        inv_df = scaler.inverse_transform(act_df)
+        invOrigEqual = np.all(inv_df == df)
+        if not invOrigEqual:
+            print('testGroupMinMaxScaler: inverse_transform')
+            print('Expected df:\n{}'.format(df))
+            print('Actual df:\n{}'.format(inv_df))
+
 if __name__ == "__main__":
     unittest.main()
