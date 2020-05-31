@@ -1,71 +1,53 @@
 import numpy as np
 import pandas as pd
-import data_utils
-import misc_utils
-from sklearn.svm import SVR
+from sklearn.cluster import KMeans
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVR
+import data_utils
 
 def readDowJonesCSV(path="~/Data/DowJonesIndex"):
-    dateUpdater = np.vectorize(lambda dStr: np.int64(pd.Timestamp(dStr).value / 1000000000))
-    priceUpdater = np.vectorize(lambda pStr: np.float(pStr[1:]))
+    def str2price(s):
+        return np.float(s[1:])
 
-    dji = pd.read_csv(path + "/dow_jones_index.data")
-    dji.date = dateUpdater(dji.date)
-    dji.open = priceUpdater(dji.open)
-    dji.high = priceUpdater(dji.high)
-    dji.low = priceUpdater(dji.low)
-    dji.close = priceUpdater(dji.close)
-    dji.next_weeks_open = priceUpdater(dji.next_weeks_open)
-    dji.next_weeks_close = priceUpdater(dji.next_weeks_close)
+    dji = pd.read_csv(path + "/dow_jones_index.data",
+                      converters={'date': pd.Timestamp,
+                                  'open': str2price,
+                                  'high': str2price,
+                                  'low': str2price,
+                                  'close': str2price,
+                                  'next_weeks_open': str2price,
+                                  'next_weeks_close': str2price})
 
     dji.stock = dji.stock.astype('category')
 
+    dji.sort_values(by=['date'], inplace=True)
+    dji.index = dji.date
+    dji.drop(columns=['date'], inplace=True)
+
     return dji
-
-def filterStocks(data, names):
-    if type(names) == str:
-        names = [names]
-    return data[data.stock.isin(names)]
-
-def filterStocksByMatchingQuarterDirection(data, sameDirection=True):
-    groupBy = data[['quarter', 'stock', 'percent_change_next_weeks_price']].groupby(['quarter', 'stock']).mean().reset_index()
-    ones = groupBy[groupBy.quarter == 1]
-    twos = groupBy[groupBy.quarter == 2]
-    onesSign = np.sign(ones.percent_change_next_weeks_price.values)
-    twosSign = np.sign(twos.percent_change_next_weeks_price.values)
-    flags = onesSign == twosSign if sameDirection else onesSign != twosSign
-    stocks = np.unique(ones.stock[flags].values)
-    return data[data.stock.isin(stocks)]
 
 def addDowJonesDerivedData(data):
     data['percent_change_high'] = 100.0 * (data.high - data.open) / data.open
     data['percent_change_low'] = 100.0 * (data.low - data.open) / data.open
-    data['week'] = (data.date - 1294358400) / 604800
-    data.week = data.week.astype('int')
-    
-def splitDowJonesData(data, columns):
+    data['week'] = np.array([d.week for d in data.index], dtype=np.int32)
+
+def splitDowJonesData(data, byDate=None):
+    columns = data.columns
     X_columns = columns[:len(columns) - 1]
     y_column = columns[len(columns) - 1:]
-    
-    q1 = data[data.quarter == 1].reset_index()
-    q2 = data[data.quarter == 2].reset_index()
-    return q1[X_columns], q2[X_columns], q1[y_column], q2[y_column]
 
-def makeDowJonesColumns(week=True, stock=False, prices=True, volume=True, percent=True, derived=False):
-    columns = ['week'] if week else []
-    if stock:
-        columns.extend(['stock'])
-    if prices:
-        columns.extend(['open', 'high', 'low', 'close'])
-    if volume:
-        columns.extend(['volume'])
-    if percent:
-        columns.extend(['percent_change_price'])
-    if derived:
-        columns.extend(['percent_change_high', 'percent_change_low'])
-    columns.extend(['percent_change_next_weeks_price'])
-    return columns
+    if byDate is None:
+        q1 = data[data.quarter == 1]
+        q2 = data[data.quarter == 2]
+    else:
+        if isinstance(byDate, str):
+            byDate = pd.Timestamp(byDate)
+        q1 = data[:byDate]
+        q2 = data[byDate + pd.Timedelta('1d'):]
+    return q1[X_columns], q2[X_columns], q1[y_column], q2[y_column]
 
 def createSVR(trainingX, trainingY, C=1.0, gamma="auto", kernel="rbf", coef0=0.0, degree=3, epsilon=0.01):
     svr = SVR(kernel=kernel, C=C, gamma=gamma, coef0=coef0, degree=degree, epsilon=epsilon)
@@ -148,24 +130,78 @@ def findBestEstimator(trainingX,
         crossValidate(estimator, trainingX, trainingY, 3, scoring)
     return estimator
 
-def makeDowJonesSegments(data, segmentOffset, segmentLength, xAggFtn=None, yAggFtn=None):
-    xSegments = data_utils.makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=xAggFtn)
+def getDowJonesData(stockClusters=0, stockScale=False, scale=None, components=None, window=None):
+    data = readDowJonesCSV()
 
-    ySegments = None
-    if yAggFtn is not None:
-        ySegments = data_utils.makeSegments(data, segmentOffset, segmentLength, flatten=True, aggFtn=yAggFtn)
+    addDowJonesDerivedData(data)
 
-    return xSegments, ySegments
+    columns = ['quarter',
+               'stock',
+               'volume',
+               'percent_change_price',
+               'percent_change_high',
+               'percent_change_low',
+               'days_to_next_dividend',
+               'percent_return_next_dividend',
+               'percent_change_next_weeks_price']
+    data = data[columns].copy()
 
-def getDataForTesting(columns, scale=None, components=None, stocks=None, filterSameDirection=None):
-    dji = readDowJonesCSV()
-    if stocks is not None:
-        dji = filterStocks(dji, stocks)
-    if filterSameDirection is not None:
-        dji = filterStocksByMatchingQuarterDirection(dji, sameDirection=filterSameDirection)
-    addDowJonesDerivedData(dji)
-    X_train, X_test, y_train, y_test = splitDowJonesData(dji, columns)
-    pipeline = data_utils.createPipeline(X_train, scale=scale, components=components)
+    if stockScale:
+        gmmScaler = data_utils.GroupMinMaxScaler('stock', keepColumns=['quarter']).fit(data)
+        data = gmmScaler.transform(data)
+
+    xl, xt, yl, yt = splitDowJonesData(data)
+    xl.drop(columns=['quarter', 'stock'], inplace=True)
+    xt.drop(columns=['quarter', 'stock'], inplace=True)
+
+    pipeline = data_utils.createPipeline(xl, scale=scale, components=components)
     if pipeline is not None:
-        X_train, X_test = data_utils.preprocessData(pipeline, X_train, X_test, copyColumns=(components is None))
-    return X_train, X_test, y_train, y_test
+        xl, xt = data_utils.preprocessData(pipeline, xl, xt, copyColumns=(components is None))
+
+    if stockClusters > 0:
+        km = KMeans(n_clusters=stockClusters).fit(xl)
+        xl['cluster'] = km.labels_
+        xt['cluster'] = km.predict(xt)
+        encoder = data_utils.DataEncoder(columns=['cluster'], oneHotEncoding=True)
+        xl = encoder.encode(xl)
+        xt = encoder.encode(xt)
+
+    if window:
+        xl = xl.rolling(window).mean().dropna()
+        xt = xt.rolling(window).mean().dropna()
+        yl = yl.rolling(window).mean().dropna()
+        yt = yt.rolling(window).mean().dropna()
+
+    xl.reset_index(drop=True, inplace=True)
+    xt.reset_index(drop=True, inplace=True)
+    yl.reset_index(drop=True, inplace=True)
+    yt.reset_index(drop=True, inplace=True)
+
+    return xl, xt, yl, yt
+
+def getResampledDowJonesData(scale=None, components=None, splitByDate=None):
+    data = readDowJonesCSV()
+
+    addDowJonesDerivedData(data)
+
+    data = data.resample('1w').mean()
+
+    columns = ['quarter',
+               'volume',
+               'percent_change_price',
+               'percent_change_high',
+               'percent_change_low',
+               'days_to_next_dividend',
+               'percent_return_next_dividend',
+               'percent_change_next_weeks_price']
+    data = data[columns]
+
+    xl, xt, yl, yt = splitDowJonesData(data, byDate=splitByDate)
+    xl.drop(columns=['quarter'], inplace=True)
+    xt.drop(columns=['quarter'], inplace=True)
+
+    pipeline = data_utils.createPipeline(xl, scale=scale, components=components)
+    if pipeline is not None:
+        xl, xt = data_utils.preprocessData(pipeline, xl, xt, copyColumns=(components is None))
+
+    return xl, xt, yl, yt
