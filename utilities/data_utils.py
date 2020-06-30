@@ -7,6 +7,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.pipeline import Pipeline
 
+class DataUtilException(Exception):
+    pass
+
 class DataEncoder:
     def __init__(self, columns, oneHotEncoding=False):
         self.columns = columns
@@ -112,10 +115,12 @@ def createPipeline(data, scale="minmax", components=None):
     steps = []
     pipeline = None
 
-    if scale == "minmax":
+    if scale in ["mm", "minmax"]:
         steps.append(("scale", MinMaxScaler()))
-    elif scale == "standard":
+    elif scale in ["std", "standard"]:
         steps.append(("scale", StandardScaler()))
+    elif scale is not None:
+        raise DataUtilException("Unsupported scale value '{}'".format(scale))
 
     if components is not None:
         steps.append(("pca", PCA(n_components=components)))
