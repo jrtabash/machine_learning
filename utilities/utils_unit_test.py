@@ -156,11 +156,13 @@ class TestDataUtils(unittest.TestCase):
     def testGroupMinMaxScaler(self):
         df = pd.DataFrame({'grp':  ['A', 'B', 'A', 'C', 'A', 'B'],
                            'col1': [  1,   2,   3,   4,   5,   6],
-                           'col2': [-10, -20,   0, -40,  10, -60]})
+                           'col2': [-10, -20,   0, -40,  10, -60],
+                           'col3': [0,     0,   0,   1,   1,   1]})
         exp_df = pd.DataFrame({'grp':  ['A', 'B', 'A', 'C', 'A', 'B'],
                                'col1': [0.0, 0.0, 0.5, 0.0, 1.0, 1.0],
-                               'col2': [0.0, 1.0, 0.5, 0.0, 1.0, 0.0]})
-        scaler = data_utils.GroupMinMaxScaler('grp')
+                               'col2': [0.0, 1.0, 0.5, 0.0, 1.0, 0.0],
+                               'col3': [0,     0,   0,   1,   1,   1]})
+        scaler = data_utils.GroupMinMaxScaler('grp', keepColumns=['col3'])
         scaler.fit(df)
         act_df = scaler.transform(df)
 

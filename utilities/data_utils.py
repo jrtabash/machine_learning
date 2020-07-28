@@ -70,8 +70,9 @@ class GroupMinMax:
                 self.minMax[byValue][column] = (minRow[column].values[0], maxRow[column].values[0])
 
 class GroupMinMaxScaler:
-    def __init__(self, byColumn):
+    def __init__(self, byColumn, keepColumns=[]):
         self.byColumn = byColumn
+        self.keepColumns = keepColumns
         self.minMax = None
 
     def fit(self, data):
@@ -103,6 +104,9 @@ class GroupMinMaxScaler:
                 column = data.columns[col]
 
                 if column == self.byColumn:
+                    continue
+
+                if column in self.keepColumns:
                     continue
 
                 outData.iloc[row, col] = ftn(
