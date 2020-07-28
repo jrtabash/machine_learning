@@ -31,10 +31,12 @@ def plotData(data, xName, yName):
     plt.ylabel(yName)
     plt.show()
 
-def plotPredictVsActual(yPredict, yActual, overlay=False):
+def plotPredictVsActual(yPredict, yActual, overlay=False, show=True, subTitle=None):
     x = range(0, len(yActual))
     yDataAndNameList = [(yPredict, "Prediction"), (yActual, "Actual")]
     titleText = "Prediction vs. Actual"
+    if subTitle:
+        titleText = titleText + " (" + subTitle + ")"
 
     if overlay:
         for yDataColorAndName in yDataAndNameList:
@@ -52,7 +54,8 @@ def plotPredictVsActual(yPredict, yActual, overlay=False):
                 plt.title(titleText)
             plt.grid(axis="both")
             index += 1
-    plt.show()
+    if show:
+        plt.show()
 
 def plotConfusionMatrix(cm, cmap=None, labels=None):
     if labels is not None:
