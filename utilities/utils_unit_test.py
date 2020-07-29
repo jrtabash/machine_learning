@@ -14,26 +14,6 @@ def TempConvertEqual(ftn):
     return lambda srcT, destT: fequal(ftn(srcT), destT)
 
 class TestMiscUtils(unittest.TestCase):
-    def testProfitScore(self):
-        ps = lambda a, p: misc_utils.profitScore(a, p, calcSign=False)
-        self.assertTrue(fequal(ps([0.0], [0.0]), 0.0))
-        self.assertTrue(fequal(ps([0.0], [0.01]), 0.0001))
-        self.assertTrue(fequal(ps([0.0], [-0.01]), 0.0001))
-
-        ps = lambda a, p: misc_utils.profitScore(a, p, calcSign=False)
-        self.assertTrue(fequal(ps([0.0, 0.1], [0.0, 0.1]), 0.0))
-        self.assertTrue(fequal(ps([0.0, 0.1], [0.01, 0.11]), 0.00020011))
-        self.assertTrue(fequal(ps([0.0, 0.1], [-0.01, 0.09]), 0.00020011))
-
-    def testProfitScoreSign(self):
-        ps = lambda a, p: misc_utils.profitScore(a, p, calcSign=True)
-        self.assertTrue(fequal(ps([0.0], [0.0]), 0.0))
-        self.assertTrue(fequal(ps([0.0], [0.01]), -0.0001)) # Should this be -ve?
-        self.assertTrue(fequal(ps([0.0], [-0.01]), -0.0001))
-        self.assertTrue(fequal(ps([0.1], [0.1]), 0.0))
-        self.assertTrue(fequal(ps([0.1], [0.11]), 0.0001))
-        self.assertTrue(fequal(ps([0.1], [0.09]), 0.0001))
-
     def testKelvinToCelcius(self):
         eql = TempConvertEqual(misc_utils.convertK2C)
         self.assertTrue(eql(0.0, -273.15))

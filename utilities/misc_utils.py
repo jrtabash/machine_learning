@@ -4,51 +4,6 @@ from sklearn.metrics import make_scorer
 class MiscUtilException(Exception):
     pass
 
-def profitScore(yActual, yPredict, calcSign=True):
-    """ Calculates a profit score of predicted relative to actual.
-
-    The smaller the absolute of the score the better.
-
-    When calcSign=True, the function calculates a signed result for which the sign
-    is based on the following actual change vs predicted change rules:
-
-      Actual | Predicted | Sign
-     --------+-----------+------
-        +    |     +     |  +
-        +    |     -     |  -
-        -    |     +     |  -
-        -    |     -     |  +
-
-    The function can be used as a loss metric with make_scorer by using calcSign=False.
-    """
-
-    initialAmount = 100.0
-    predictAmount = initialAmount
-    actualAmount = initialAmount
-
-    predictValues = np.asarray(yPredict).flatten()
-    actualValues = np.asarray(yActual).flatten()
-
-    if len(predictValues) != len(actualValues):
-        raise MiscUtilException("profitScore: yPredict and yActual must have same length")
-
-    for pValue, aValue in zip(predictValues, actualValues):
-        # This assumes predict amounts are percent change amounts
-        # Example: 2.75 => 2.75% => 2.75 / 100.0
-        #          So, amount => amount + (amount * 2.75 / 100.0)
-        predictAmount += (pValue * predictAmount / 100.0)
-        actualAmount += (aValue * actualAmount / 100.0)
-
-    predictChange = predictAmount - initialAmount
-    actualChange = actualAmount - initialAmount
-
-    scoreSign = -1 if calcSign and np.sign(predictChange) != np.sign(actualChange) else 1
-
-    return scoreSign * abs(predictChange - actualChange) / initialAmount
-
-def makeProfitLossFtn():
-    return make_scorer(profitScore, greater_is_better=False, calcSign=False)
-
 def convertK2C(kelvin):
     return kelvin - 273.15
 
